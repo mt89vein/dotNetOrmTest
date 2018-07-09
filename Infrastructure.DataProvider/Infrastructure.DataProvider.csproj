@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>Infrastructure.DataProvider</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20180701115403_Initial.cs" />
+    <Compile Remove="Migrations\20180704185740_Initial.cs" />
+    <Compile Remove="Migrations\20180707191813_Initial.cs" />
+    <Compile Remove="Migrations\20180707191924_Initial.cs" />
+    <Compile Remove="Migrations\20180708152533_Initial.cs" />
+    <Compile Remove="Migrations\20180708173035_Initial1.cs" />
+    <Compile Remove="Migrations\20180709182523_AddIdentityToPaymentAndItems.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+</Project>

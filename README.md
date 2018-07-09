@@ -1,12 +1,8 @@
 # dotNetOrmTest
 
-## Тестовая предметная область
+## Тестовая предметная область с Data Access Layer на Entity Framework Core 2.1.1
 
-Абстрактный BaseDocument, с двумя наследниками Document, OtherDocument и комплексным типом PublicationEvent
+Абстрактный Document, с двумя наследниками OtherDocument (с комплексным типом PublicationEvent) + IPublishable... + 2 коллекции для теста LoadWith (Include)
+и SecondDocument.
 
-Цель - опробовать реализацию Table per type / Table per hierarchy, complex type, lazy load, eager load, IQuerable etc
-
-* Dapper
-* Entity Framework Core
-* Entity Framework 6.2
-* Linq2Db
+Цель - опробовать реализацию Table per type, complex type, lazy load, eager load, IQuerable etc 
