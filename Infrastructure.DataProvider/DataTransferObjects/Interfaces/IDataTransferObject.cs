@@ -2,17 +2,21 @@
 
 namespace Infrastructure.DataProvider
 {
-    /// <summary>
-    /// Интерфейс DTO для сущности
-    /// </summary>
-    /// <typeparam name="TEntity">Тип сущности</typeparam>
-    public interface IDataTransferObject<TEntity>
-        where TEntity : IEntity
-    {
-        int Id { get; set; }
+	/// <summary>
+	///     Интерфейс DTO для сущности
+	/// </summary>
+	/// <typeparam name="TEntity">Тип сущности</typeparam>
+	/// <typeparam name="TWorkItemStrategy"></typeparam>
+	public interface IDataTransferObject<TEntity, in TWorkItemStrategy>
+		where TEntity : IEntity
+		where TWorkItemStrategy : WorkItemStrategy
+	{
+		int Id { get; set; }
 
-        TEntity Reconstitute();
+		bool Deleted { get; set; }
 
-        void Update(TEntity entity);
-    }
+		TEntity Reconstitute(TWorkItemStrategy workItemStrategy);
+
+		void Update(TEntity entity, TWorkItemStrategy workItemStrategy);
+	}
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace DataProviced.Migrations
+namespace Infrastructure.DataProvider.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
     partial class ApplicationContextModelSnapshot : ModelSnapshot
@@ -19,9 +19,38 @@ namespace DataProviced.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.DocumentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.AttachmentDto", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Deleted");
+
+                    b.Property<int?>("DocumentId");
+
+                    b.Property<string>("Path");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.ToTable("Attachment");
+
+                    b.HasData(
+                        new { Id = 1, Deleted = false, DocumentId = 1, Path = "some/path" },
+                        new { Id = 2, Deleted = false, DocumentId = 1, Path = "some/another/path" },
+                        new { Id = 3, Deleted = true, DocumentId = 1, Path = "some/either/path" }
+                    );
+                });
+
+            modelBuilder.Entity("Infrastructure.DataProvider.DocumentDto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Deleted");
 
                     b.Property<int>("DocumentType");
 
@@ -30,24 +59,42 @@ namespace DataProviced.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Document");
+
+                    b.HasData(
+                        new { Id = 1, Deleted = false, DocumentType = 0, Name = "Первый документ первого типа" },
+                        new { Id = 2, Deleted = true, DocumentType = 0, Name = "Второй удаленный документ первого типа" },
+                        new { Id = 3, Deleted = false, DocumentType = 0, Name = "Третий документ первого типа" },
+                        new { Id = 4, Deleted = false, DocumentType = 0, Name = "Четвертый документ первого типа" }
+                    );
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentDto", b =>
                 {
                     b.Property<int>("Id");
+
+                    b.Property<bool>("Deleted");
 
                     b.Property<string>("TestName");
 
                     b.HasKey("Id");
 
                     b.ToTable("OtherDocument");
+
+                    b.HasData(
+                        new { Id = 1, Deleted = false, TestName = "Первый документ первого типа" },
+                        new { Id = 2, Deleted = true, TestName = "Второй документ первого типа" },
+                        new { Id = 3, Deleted = false, TestName = "Третий удаленный документ первого типа" },
+                        new { Id = 4, Deleted = false, TestName = "Четвертый документ первого типа" }
+                    );
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentItemDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentItemDto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Deleted");
 
                     b.Property<string>("Name");
 
@@ -58,13 +105,26 @@ namespace DataProviced.Migrations
                     b.HasIndex("OtherDocumentId");
 
                     b.ToTable("OtherDocumentItem");
+
+                    b.HasData(
+                        new { Id = 1, Deleted = false, Name = "item 1 1", OtherDocumentId = 1 },
+                        new { Id = 2, Deleted = true, Name = "item 1 2", OtherDocumentId = 1 },
+                        new { Id = 3, Deleted = false, Name = "item 2 1", OtherDocumentId = 2 },
+                        new { Id = 4, Deleted = true, Name = "item 2 2", OtherDocumentId = 2 },
+                        new { Id = 5, Deleted = false, Name = "item 3 1", OtherDocumentId = 3 },
+                        new { Id = 6, Deleted = true, Name = "item 3 2", OtherDocumentId = 3 },
+                        new { Id = 7, Deleted = false, Name = "item 4 1", OtherDocumentId = 4 },
+                        new { Id = 8, Deleted = true, Name = "item 4 2", OtherDocumentId = 4 }
+                    );
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentPaymentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentPaymentDto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Deleted");
 
                     b.Property<int>("OtherDocumentId");
 
@@ -75,66 +135,48 @@ namespace DataProviced.Migrations
                     b.HasIndex("OtherDocumentId");
 
                     b.ToTable("OtherDocumentPayment");
+
+                    b.HasData(
+                        new { Id = 1, Deleted = false, OtherDocumentId = 1, Total = "150" },
+                        new { Id = 2, Deleted = true, OtherDocumentId = 1, Total = "25" },
+                        new { Id = 3, Deleted = false, OtherDocumentId = 2, Total = "450" },
+                        new { Id = 4, Deleted = true, OtherDocumentId = 2, Total = "132" },
+                        new { Id = 5, Deleted = false, OtherDocumentId = 3, Total = "444" },
+                        new { Id = 6, Deleted = true, OtherDocumentId = 3, Total = "521" },
+                        new { Id = 7, Deleted = false, OtherDocumentId = 4, Total = "421" },
+                        new { Id = 8, Deleted = true, OtherDocumentId = 4, Total = "4444" }
+                    );
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.SecondDocumentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.AttachmentDto", b =>
                 {
-                    b.Property<int>("Id");
-
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<string>("DocumentSigner");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SecondDocument");
+                    b.HasOne("Infrastructure.DataProvider.DocumentDto", "DocumentDto")
+                        .WithMany("AttachmentDtos")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentDto", b =>
                 {
-                    b.HasOne("DataProvider.DataTransferObjects.DocumentDto", "DocumentDto")
+                    b.HasOne("Infrastructure.DataProvider.DocumentDto", "DocumentDto")
                         .WithOne("OtherDocumentDto")
-                        .HasForeignKey("DataProvider.DataTransferObjects.OtherDocumentDto", "Id")
+                        .HasForeignKey("Infrastructure.DataProvider.OtherDocumentDto", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.OwnsOne("Domain.PublicationEvent", "PublicationEvent", b1 =>
-                        {
-                            b1.Property<int?>("OtherDocumentDtoId");
-
-                            b1.Property<DateTime?>("Date");
-
-                            b1.Property<int?>("UserId");
-
-                            b1.ToTable("OtherDocument");
-
-                            b1.HasOne("DataProvider.DataTransferObjects.OtherDocumentDto")
-                                .WithOne("PublicationEvent")
-                                .HasForeignKey("Domain.PublicationEvent", "OtherDocumentDtoId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentItemDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentItemDto", b =>
                 {
-                    b.HasOne("DataProvider.DataTransferObjects.OtherDocumentDto", "OtherDocumentDto")
+                    b.HasOne("Infrastructure.DataProvider.OtherDocumentDto", "OtherDocumentDto")
                         .WithMany("OtherDocumentItemDtos")
                         .HasForeignKey("OtherDocumentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("DataProvider.DataTransferObjects.OtherDocumentPaymentDto", b =>
+            modelBuilder.Entity("Infrastructure.DataProvider.OtherDocumentPaymentDto", b =>
                 {
-                    b.HasOne("DataProvider.DataTransferObjects.OtherDocumentDto", "OtherDocumentDto")
+                    b.HasOne("Infrastructure.DataProvider.OtherDocumentDto", "OtherDocumentDto")
                         .WithMany("OtherDocumentPaymentDtos")
                         .HasForeignKey("OtherDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("DataProvider.DataTransferObjects.SecondDocumentDto", b =>
-                {
-                    b.HasOne("DataProvider.DataTransferObjects.DocumentDto", "DocumentDto")
-                        .WithOne("SecondDocumentDto")
-                        .HasForeignKey("DataProvider.DataTransferObjects.SecondDocumentDto", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

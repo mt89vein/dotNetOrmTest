@@ -4,7 +4,16 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Folder Include="ViewModels\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -15,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure.DataProvider\Infrastructure.DataProvider.csproj" />
-    <ProjectReference Include="..\Integration\Integration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

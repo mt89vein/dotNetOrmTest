@@ -1,37 +1,47 @@
 ﻿using System;
-using System.Linq;
 using Domain;
-using Microsoft.EntityFrameworkCore;
+using Domain.FetchStrategies;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class DocumentRepository : LinqRepository<Document, DocumentDto>, IDocumentRepository
-    {
-        private readonly IOtherDocumentRepository _otherDocumentRepository;
-        private readonly ISecondDocumentRepository _secondDocumentRepository;
+	public class DocumentRepository : LinqRepository<Document, DocumentDto, DocumentWorkItemStrategy>, IDocumentRepository
+	{
+		private readonly IOtherDocumentRepository _otherDocumentRepository;
 
-        public DocumentRepository(IOtherDocumentRepository otherDocumentRepository,
-            ISecondDocumentRepository secondDocumentRepository)
-        {
-            _otherDocumentRepository = otherDocumentRepository;
-            _secondDocumentRepository = secondDocumentRepository;
-        }
+		public DocumentRepository(IOtherDocumentRepository otherDocumentRepository, ApplicationContext context)
+			: base(context)
+		{
+			_otherDocumentRepository = otherDocumentRepository;
+		}
 
-        protected override IQueryable<DocumentDto> QueryAll => Table.Include(w => w.OtherDocumentDto).Include(w => w.SecondDocumentDto);
+		public override bool Save(Document entity, DocumentWorkItemStrategy documentWorkItemStrategy = null)
+		{
+			if (entity is OtherDocument otherDocument &&
+			    documentWorkItemStrategy is OtherDocumentWorkItemStrategy otherDocumentWorkItemStrategy)
+			{
+				return _otherDocumentRepository.Save(otherDocument, otherDocumentWorkItemStrategy);
+			}
 
-        public override bool Save(Document entity)
-        {
-            if (entity is OtherDocument otherDocument)
-            {
-                return _otherDocumentRepository.Save(otherDocument);
-            }
+			throw new Exception("Неизвестный тип документа");
+		}
 
-            if (entity is SecondDocument secondDocument)
-            {
-                return _secondDocumentRepository.Save(secondDocument);
-            }
+		protected sealed override Specification<DocumentDto> ToSpecification(DocumentWorkItemStrategy workItemStrategy)
+		{
+			var specification = new Specification<DocumentDto>();
 
-            throw new Exception("Неизвестный тип документа");
-        }
-    }
+			if (workItemStrategy.WithAttachments)
+			{
+				specification.FetchStrategy.Include(w => w.AttachmentDtos);
+			}
+
+			if (!workItemStrategy.WithDeleted)
+			{
+				specification.Predicate = w => !w.Deleted;
+			}
+
+			specification.FetchStrategy.Include(w => w.OtherDocumentDto);
+
+			return specification;
+		}
+	}
 }
