@@ -1,11 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Domain;
 using Integration.PublishData;
 using Integration.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using OrmTest.ViewModels;
 
 namespace OrmTest.Controllers

@@ -16,6 +16,6 @@ namespace Infrastructure.DataProvider.Mappings
             builder.HasMany(w => w.OtherDocumentPaymentDtos).WithOne(w => w.OtherDocumentDto)
                 .HasForeignKey(w => w.OtherDocumentId).OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("OtherDocument");
-        }
+		}
     }
 }

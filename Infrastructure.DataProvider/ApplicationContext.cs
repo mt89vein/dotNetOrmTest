@@ -16,7 +16,7 @@ namespace Infrastructure.DataProvider
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+	    protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new DocumentMap());
             builder.ApplyConfiguration(new OtherDocumentMap());
