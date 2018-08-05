@@ -165,13 +165,14 @@ namespace Infrastructure.DataProvider
         /// <param name="ids"></param>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        private IReadOnlyCollection<TDomainEntity> GetCached(ICollection<int> ids, TWorkItemStrategy workItemStrategy = null)
+        private IReadOnlyCollection<TDomainEntity> GetCached(ICollection<int> ids,
+            TWorkItemStrategy workItemStrategy = null)
         {
             if (workItemStrategy != null)
             {
                 return Repository.Get(ids, ToSpecification(workItemStrategy)).Select(w => w.Reconstitute()).ToList();
             }
-            
+
             var entityList = RedisService.Get(ids.ToArray());
 
             if (entityList?.Count == ids.Count)

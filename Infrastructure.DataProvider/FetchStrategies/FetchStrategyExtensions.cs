@@ -7,23 +7,23 @@ using Infrastructure.DataProvider.Helpers;
 
 namespace Infrastructure.DataProvider
 {
-	public static class FetchStrategyExtensions
-	{
-		public static string ToIncludeString<T>(this Expression<Func<T, object>> selector)
-		{
-			var members = new List<PropertyInfo>();
-			ExpressionHelper.CollectRelationalMembers(selector, members);
+    public static class FetchStrategyExtensions
+    {
+        public static string ToIncludeString<T>(this Expression<Func<T, object>> selector)
+        {
+            var members = new List<PropertyInfo>();
+            ExpressionHelper.CollectRelationalMembers(selector, members);
 
-			var sb = new StringBuilder();
-			var separator = "";
-			foreach (var member in members)
-			{
-				sb.Append(separator);
-				sb.Append(member.Name);
-				separator = ".";
-			}
+            var sb = new StringBuilder();
+            var separator = "";
+            foreach (var member in members)
+            {
+                sb.Append(separator);
+                sb.Append(member.Name);
+                separator = ".";
+            }
 
-			return sb.ToString();
-		}
-	}
+            return sb.ToString();
+        }
+    }
 }

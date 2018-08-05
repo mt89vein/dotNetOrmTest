@@ -54,7 +54,7 @@ namespace Infrastructure.DataProvider.Caching
         public void Set(TDto entity)
         {
             RedisDb.StringSetAsync(BuildKey(entity.Id),
-                JsonConvert.SerializeObject((object) entity,
+                JsonConvert.SerializeObject(entity,
                     new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore}));
         }
 

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Domain;
 using Domain.FetchStrategies;
 using Domain.Services;
 using Infrastructure.DataProvider.Caching;
 using Infrastructure.DomainBase;
-using ServiceStack.Redis;
 
 namespace Infrastructure.DataProvider.Services
 {
@@ -15,7 +13,8 @@ namespace Infrastructure.DataProvider.Services
     {
         public OtherDocumentPaymentService(
             IRepository<OtherDocumentPayment, OtherDocumentPaymentDto, ISpecification<OtherDocumentPaymentDto>>
-                repository, ApplicationContext context, IRedisService<OtherDocumentPaymentDto, OtherDocumentPayment> redisService) :
+                repository, ApplicationContext context,
+            IRedisService<OtherDocumentPaymentDto, OtherDocumentPayment> redisService) :
             base(repository, context, redisService)
         {
         }

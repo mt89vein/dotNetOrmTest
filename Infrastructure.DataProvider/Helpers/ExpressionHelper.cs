@@ -5,38 +5,38 @@ using System.Reflection;
 
 namespace Infrastructure.DataProvider.Helpers
 {
-	internal static class ExpressionHelper
-	{
-		internal static void CollectRelationalMembers(Expression exp, IList<PropertyInfo> members)
-		{
-			switch (exp.NodeType)
-			{
-				case ExpressionType.Lambda:
-					CollectRelationalMembers(((LambdaExpression) exp).Body, members);
-					break;
-				case ExpressionType.MemberAccess:
-					var mexp = (MemberExpression) exp;
-					CollectRelationalMembers(mexp.Expression, members);
-					members.Add((PropertyInfo) mexp.Member);
+    internal static class ExpressionHelper
+    {
+        internal static void CollectRelationalMembers(Expression exp, IList<PropertyInfo> members)
+        {
+            switch (exp.NodeType)
+            {
+                case ExpressionType.Lambda:
+                    CollectRelationalMembers(((LambdaExpression) exp).Body, members);
+                    break;
+                case ExpressionType.MemberAccess:
+                    var mexp = (MemberExpression) exp;
+                    CollectRelationalMembers(mexp.Expression, members);
+                    members.Add((PropertyInfo) mexp.Member);
 
-					break;
-				case ExpressionType.Call:
-					var cexp = (MethodCallExpression) exp;
+                    break;
+                case ExpressionType.Call:
+                    var cexp = (MethodCallExpression) exp;
 
-					if (cexp.Method.IsStatic == false)
-					{
-						throw new InvalidOperationException("Invalid type of expression.");
-					}
+                    if (cexp.Method.IsStatic == false)
+                    {
+                        throw new InvalidOperationException("Invalid type of expression.");
+                    }
 
-					foreach (var arg in cexp.Arguments)
-						CollectRelationalMembers(arg, members);
+                    foreach (var arg in cexp.Arguments)
+                        CollectRelationalMembers(arg, members);
 
-					break;
-				case ExpressionType.Parameter:
-					return;
-				default:
-					throw new InvalidOperationException("Invalid type of expression.");
-			}
-		}
-	}
+                    break;
+                case ExpressionType.Parameter:
+                    return;
+                default:
+                    throw new InvalidOperationException("Invalid type of expression.");
+            }
+        }
+    }
 }
