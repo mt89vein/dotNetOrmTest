@@ -1,4 +1,5 @@
-﻿using Domain.Core;
+﻿using System.Collections.Generic;
+using Domain.Core;
 
 namespace Infrastructure.DataProvider
 {
@@ -10,7 +11,9 @@ namespace Infrastructure.DataProvider
 
         public virtual OtherDocumentDto OtherDocumentDto { get; set; }
 
-        public virtual SecondDocumentDto SecondDocumentDto { get; set; }
+        public virtual ICollection<AttachmentDto> AttachmentDtos { get; set; }
+
+        public bool Deleted { get; set; }
 
         public int Id { get; set; }
     }

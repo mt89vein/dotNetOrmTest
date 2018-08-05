@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Linq;
 using Infrastructure.DataProvider;
-using Integration.Services;
+using Infrastructure.DataProvider.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using ObjectFactory = Domain.ObjectFactory;
+using ServiceStack.Redis;
 
-namespace OrmTest
+namespace WebApp
 {
     public class Startup
     {
@@ -26,15 +26,13 @@ namespace OrmTest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(
-                w => w.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("Default")), ServiceLifetime.Scoped);
+                w => w.UseSqlServer(Configuration.GetConnectionString("Default")));
             services.AddMvc()
                 .AddJsonOptions(
                     options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 );
             RegisterRepositoriesAndServices(ref services);
-            services.AddScoped<IPublishService, PublishService>();
             services.AddCors();
-            ObjectFactory.Instance.Initialize(services.BuildServiceProvider().GetService);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +42,7 @@ namespace OrmTest
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -57,15 +56,23 @@ namespace OrmTest
         {
             var repositoryAssembly = typeof(ApplicationContext).Assembly;
 
-            var registrations = repositoryAssembly.GetExportedTypes()
+            foreach (var type in repositoryAssembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract)
                 .Where(t => t.Namespace == "Infrastructure.DataProvider.Repositories" ||
-                            t.Namespace == "Integration.Services")
-                .SelectMany(t => t.GetInterfaces().Select(i => new {Service = i, Implementation = t}));
-
-            foreach (var reg in registrations)
+                            t.Namespace == "Infrastructure.DataProvider.Services" ||
+                            t.Namespace == "Integration.Services"))
             {
-                serviceCollection.AddTransient(reg.Service, reg.Implementation);
+                foreach (var i in type.GetInterfaces())
+                {
+                    serviceCollection.AddScoped(
+                        i.IsGenericType
+                            ? i.GetGenericTypeDefinition().MakeGenericType(i.GetGenericArguments())
+                            : i,
+                        type);
+                }
             }
+
+            serviceCollection.AddScoped(typeof(IRedisService <,>), typeof(RedisService<,>));
         }
     }
 }

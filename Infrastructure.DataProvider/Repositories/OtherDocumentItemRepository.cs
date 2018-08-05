@@ -4,14 +4,20 @@ using Domain;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class OtherDocumentItemRepository : LinqRepository<OtherDocumentItem, OtherDocumentItemDto>,
+    public class OtherDocumentItemRepository :
+        LinqRepository<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>>,
         IOtherDocumentItemRepository
     {
-        public IReadOnlyCollection<OtherDocumentItem> GetOtherDocumentItemsByDocumentId(int documentId)
+        public OtherDocumentItemRepository(ApplicationContext context) : base(context)
         {
-            return QueryAll.Where(w => w.OtherDocumentId == documentId).Select(w => w.Reconstitute()).ToList();
         }
 
-        protected override IQueryable<OtherDocumentItemDto> QueryAll => Table;
+        public IReadOnlyCollection<OtherDocumentItemDto> GetOtherDocumentItemsByDocumentId(int documentId,
+            ISpecification<OtherDocumentItemDto> specification = null)
+        {
+            return BaseQuery(specification)
+                .Where(w => w.OtherDocumentId == documentId)
+                .ToList();
+        }
     }
 }

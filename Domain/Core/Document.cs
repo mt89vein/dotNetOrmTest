@@ -1,17 +1,22 @@
-﻿using Infrastructure.DomainBase;
+﻿using System.Collections.Generic;
+using Infrastructure.DomainBase;
 
 namespace Domain
 {
-    public abstract class Document : Entity
-    {
-        public static IDocumentRepository Repository => ObjectFactory.Instance.GetObject<IDocumentRepository>();
+	public abstract class Document : Entity
+	{
+		protected Document(int id, string name, List<Attachment> attachments, bool deleted)
+		{
+			Id = id;
+			Name = name;
+			Attachments = attachments;
+			Deleted = deleted;
+		}
 
-        protected Document(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
+		public string Name { get; }
 
-        public string Name { get; }
-    }
+		public List<Attachment> Attachments { get; }
+
+		public bool Deleted { get; }
+	}
 }

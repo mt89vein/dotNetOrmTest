@@ -1,12 +1,14 @@
-﻿using System.Linq;
-using Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Domain;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class OtherDocumentRepository : LinqRepository<OtherDocument, OtherDocumentDto>,
+    public class OtherDocumentRepository : LinqRepository<OtherDocument, OtherDocumentDto,
+            ISpecification<OtherDocumentDto>>,
         IOtherDocumentRepository
     {
-        protected override IQueryable<OtherDocumentDto> QueryAll => Table.Include(w => w.DocumentDto);
+        public OtherDocumentRepository(ApplicationContext context)
+            : base(context)
+        {
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Domain;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Domain;
 using Domain.Core;
 
 namespace Infrastructure.DataProvider
@@ -7,7 +9,10 @@ namespace Infrastructure.DataProvider
     {
         public OtherDocument Reconstitute()
         {
-            return new OtherDocument(Id, ReconstitutePublicationEvent(), DocumentDto.Name, TestName);
+            var attachments = DocumentDto.AttachmentDtos?.Select(w => w.Reconstitute()).ToList() ??
+                              new List<Attachment>();
+
+            return new OtherDocument(Id, DocumentDto.Name, TestName, attachments, Deleted);
         }
 
         public void Update(OtherDocument entity)
@@ -19,14 +24,10 @@ namespace Infrastructure.DataProvider
                     Id = Id
                 };
             }
+
             DocumentDto.Update(entity);
             DocumentDto.DocumentType = DocumentType.OtherDocument;
             TestName = entity.TestName;
-        }
-
-        public PublicationEvent ReconstitutePublicationEvent()
-        {
-            return new PublicationEvent(PublicationEvent.UserId, PublicationEvent.Date);
         }
     }
 }

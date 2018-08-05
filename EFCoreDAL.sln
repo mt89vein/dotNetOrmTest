@@ -16,13 +16,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csp
 		{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B} = {1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration", "Integration\Integration.csproj", "{B4794F31-7D12-47AA-89D0-B9F960B88D4F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CDFD0B8A-8C0A-4F82-B425-63E074DE824E} = {CDFD0B8A-8C0A-4F82-B425-63E074DE824E}
-		{19395EF5-857A-4AB6-AFA1-6E0B4E7BC510} = {19395EF5-857A-4AB6-AFA1-6E0B4E7BC510}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.DomainBase", "Infrastructure.DomainBase\Infrastructure.DomainBase.csproj", "{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.DomainBase", "Infrastructure.DomainBase\Infrastructure.DomainBase.csproj", "{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectItems", "ProjectItems", "{F9CEBE41-6E28-4E8E-B70D-AE7898D53B45}"
+	ProjectSection(SolutionItems) = preProject
+		CHANGELOG.MD = CHANGELOG.MD
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,10 +41,6 @@ Global
 		{CDFD0B8A-8C0A-4F82-B425-63E074DE824E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDFD0B8A-8C0A-4F82-B425-63E074DE824E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDFD0B8A-8C0A-4F82-B425-63E074DE824E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B4794F31-7D12-47AA-89D0-B9F960B88D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B4794F31-7D12-47AA-89D0-B9F960B88D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B4794F31-7D12-47AA-89D0-B9F960B88D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4794F31-7D12-47AA-89D0-B9F960B88D4F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EE2D4C2-32D0-4C27-98F6-F4B24C65D89B}.Release|Any CPU.ActiveCfg = Release|Any CPU

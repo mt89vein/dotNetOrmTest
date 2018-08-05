@@ -5,6 +5,14 @@
     <RootNamespace>Infrastructure.DataProvider</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Migrations\20180701115403_Initial.cs" />
     <Compile Remove="Migrations\20180704185740_Initial.cs" />
@@ -13,12 +21,16 @@
     <Compile Remove="Migrations\20180708152533_Initial.cs" />
     <Compile Remove="Migrations\20180708173035_Initial1.cs" />
     <Compile Remove="Migrations\20180709182523_AddIdentityToPaymentAndItems.cs" />
+    <Compile Remove="Migrations\20180724063504_Initial.cs" />
+    <Compile Remove="Migrations\20180725115704_Initial.cs" />
+    <Compile Remove="Migrations\20180725115802_Initial.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.1" />
+    <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>

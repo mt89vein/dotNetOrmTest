@@ -1,103 +1,72 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Domain;
-using Integration.PublishData;
-using Integration.Services;
+﻿using Domain.FetchStrategies;
+using Domain.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using OrmTest.ViewModels;
 
-namespace OrmTest.Controllers
+namespace WebApp.Controllers
 {
     [Route("api/[controller]/[action]")]
     public class HomeController : Controller
     {
-        private readonly IDocumentRepository _documentRepository;
-        private readonly IOtherDocumentItemRepository _otherDocumentItemRepository;
-        private readonly IOtherDocumentRepository _otherDocumentRepository;
-        private readonly IPublishService _publishService;
-        private readonly ISecondDocumentRepository _secondDocumentRepository;
+        private readonly IDocumentService _documentService;
+        private readonly IOtherDocumentItemService _otherDocumentItemService;
+        private readonly IOtherDocumentPaymentService _otherDocumentPaymentService;
+        private readonly IOtherDocumentService _otherDocumentService;
 
         public HomeController(
-            IDocumentRepository documentRepository,
-            ISecondDocumentRepository secondDocumentRepository,
-            IOtherDocumentRepository otherDocumentRepository,
-            IPublishService publishService,
-            IOtherDocumentItemRepository otherDocumentItemRepository
+            IDocumentService documentService,
+            IOtherDocumentItemService otherDocumentItemService,
+            IOtherDocumentPaymentService otherDocumentPaymentService,
+            IOtherDocumentService otherDocumentService
         )
         {
-            _documentRepository = documentRepository;
-            _secondDocumentRepository = secondDocumentRepository;
-            _otherDocumentRepository = otherDocumentRepository;
-            _publishService = publishService;
-            _otherDocumentItemRepository = otherDocumentItemRepository;
+            _documentService = documentService;
+            _otherDocumentItemService = otherDocumentItemService;
+            _otherDocumentPaymentService = otherDocumentPaymentService;
+            _otherDocumentService = otherDocumentService;
         }
 
         [HttpGet]
         public IActionResult GetDocuments()
         {
-            var documents = _documentRepository.GetAll();
+            var documents = _documentService.Get();
             return Ok(documents);
         }
 
         [HttpGet]
-        public IActionResult GetOtherDocuments()
+        public IActionResult GetOtherDocuments(bool attachments = true, bool payments = true, bool items = true,
+            bool deleted = false)
         {
-            var documents = _otherDocumentRepository.GetAll();
+            var strategy = new OtherDocumentWorkItemStrategy(deleted, attachments, payments, items);
+            var documents = _otherDocumentService.Get(strategy);
             return Ok(documents);
         }
 
         [HttpGet]
-        public IActionResult OtherDocumentInfo(int id)
+        public IActionResult OtherDocumentInfo(
+            int id,
+            bool attachments = true,
+            bool payments = true,
+            bool items = true,
+            bool readOnly = true,
+            bool cacheResult = true,
+            bool deleted = false
+        )
         {
-            var document = _otherDocumentRepository.Get(id);
-            var items = _otherDocumentItemRepository.GetOtherDocumentItemsByDocumentId(id);
-           
-            var payments = document.GetOtherDocumentPayments();
-            var items2 = document.GetOtherDocumentItems();
+            var otherDocumentItemWorkItemStrategy = new OtherDocumentItemWorkItemStrategy(deleted, true, true);
+            var otherDocumentPaymentWorkItemStrategy = new OtherDocumentPaymentWorkItemStrategy(deleted, true, true);
+            var strategy = new OtherDocumentWorkItemStrategy(deleted, attachments, payments, items, readOnly,
+                cacheResult, otherDocumentItemWorkItemStrategy, otherDocumentPaymentWorkItemStrategy);
+
+            var document = _otherDocumentService.Get(id, strategy);
+            var documentItems = _otherDocumentItemService.GetByOtherDocumentId(id, otherDocumentItemWorkItemStrategy);
+            var documentPayments =  _otherDocumentPaymentService.GetByOtherDocumentId(id, otherDocumentPaymentWorkItemStrategy);
 
             return Ok(new
             {
                 document,
-                items,
-                items2,
-                payments
+                documentItems,
+                documentPayments
             });
-        }
-
-        [HttpGet]
-        public IActionResult GetSecondDocuments()
-        {
-            var documents = _secondDocumentRepository.GetAll();
-            return Ok(documents);
-        }
-
-        [HttpPost]
-        public IActionResult CreateSecondDocument([FromBody] SecondDocumentViewModel secondDocument)
-        {
-            // validate etc.. then save
-            var doc = _secondDocumentRepository.Save(secondDocument.GetModel());
-            return Ok(doc);
-        }
-
-        [HttpPost]
-        public IActionResult CreateOtherDocumentItem([FromBody] OtherDocumentItemViewModel otherDocumentItemViewModel)
-        {
-            // validate etc.. then save
-            var doc = _otherDocumentItemRepository.Save(otherDocumentItemViewModel.GetModel());
-            return Ok(doc);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Publish(int id, [FromBody] OtherDocumentPublishData publishData,
-            CancellationToken token = new CancellationToken())
-        {
-            token.ThrowIfCancellationRequested();
-            var document = _otherDocumentRepository.Get(id);
-            var result = await _publishService.PublishAsync(document, publishData, token);
-
-            return Ok(result);
         }
     }
 }

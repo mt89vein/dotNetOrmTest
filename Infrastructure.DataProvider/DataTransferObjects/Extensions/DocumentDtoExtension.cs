@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Domain;
 using Domain.Core;
 
@@ -11,9 +12,7 @@ namespace Infrastructure.DataProvider
             switch (DocumentType)
             {
                 case DocumentType.OtherDocument:
-                    return OtherDocumentDto.Reconstitute();
-                case DocumentType.SecondDocument:
-                    return SecondDocumentDto.Reconstitute();
+                    return OtherDocumentDto?.Reconstitute();
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -23,25 +22,23 @@ namespace Infrastructure.DataProvider
         {
             Id = entity.Id;
             Name = entity.Name;
+            // update logic
+        }
+    }
 
-            if (entity is OtherDocument otherDocument)
-            {
-                if (OtherDocumentDto == null)
+    public static class DocumentDtoReconstituteExtensions
+    {
+        public static void UpdateFrom(this DocumentDto dto, Document entity)
+        {
+            dto.AttachmentDtos = entity.Attachments
+                .Select(w => new AttachmentDto
                 {
-                    OtherDocumentDto = new OtherDocumentDto();
-                }
-                OtherDocumentDto.Update(otherDocument);
-                return;
-            }
+                    Deleted = false,
+                    DocumentId = w.DocumentId,
+                    Path = w.Path
+                }).ToList();
 
-            if (entity is SecondDocument secondDocument)
-            {
-                if (SecondDocumentDto == null)
-                {
-                    SecondDocumentDto = new SecondDocumentDto();
-                }
-                SecondDocumentDto.Update(secondDocument);
-            }
+            dto.Deleted = entity.Deleted;
         }
     }
 }

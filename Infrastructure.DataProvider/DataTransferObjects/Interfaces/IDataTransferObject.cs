@@ -1,18 +1,17 @@
-﻿using Infrastructure.DomainBase;
-
-namespace Infrastructure.DataProvider
+﻿namespace Infrastructure.DataProvider
 {
     /// <summary>
     /// Интерфейс DTO для сущности
     /// </summary>
-    /// <typeparam name="TEntity">Тип сущности</typeparam>
-    public interface IDataTransferObject<TEntity>
-        where TEntity : IEntity
+    /// <typeparam name="TDomainEntity">Тип сущности</typeparam>
+    public interface IDataTransferObject<TDomainEntity>
     {
         int Id { get; set; }
 
-        TEntity Reconstitute();
+        bool Deleted { get; set; }
 
-        void Update(TEntity entity);
+        TDomainEntity Reconstitute();
+
+        void Update(TDomainEntity entity);
     }
 }

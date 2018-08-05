@@ -8,6 +8,8 @@ namespace Infrastructure.DataProvider
 
         public virtual OtherDocumentDto OtherDocumentDto { get; set; }
 
+        public bool Deleted { get; set; }
+
         public int Id { get; set; }
     }
 }
