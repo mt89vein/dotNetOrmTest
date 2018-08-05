@@ -1,8 +1,16 @@
-# dotNetOrmTest
+# EFCoreDAL - Data access layer on entity framework core 2.1.1
 
-## Тестовая предметная область с Data Access Layer на Entity Framework Core 2.1.1
+## Описание тестовой предметной области:
 
-Абстрактный Document, с двумя наследниками OtherDocument (с комплексным типом PublicationEvent) + IPublishable... + 2 коллекции для теста LoadWith (Include)
-и SecondDocument.
+Абстрактный базовый класс Document, с коллекцией вложенных файлов (Attachments) и одним наследником OtherDocument.
+OtherDocument, конкретный класс, имеющий 2 коллекции: Items, Payments.
 
-Цель - опробовать реализацию Table per type, complex type, lazy load, eager load, IQuerable etc 
+Основная цель проекта - реализовать следующее:
+
+[ ] Table per type
+[ ] Complex types
+~~~ [ ] Lazy load ~~~
+[ ] Eager load
+[ ] Specifications in access layer
+[ ] Fetch / Update strategy
+[ ] Caching in Redis
