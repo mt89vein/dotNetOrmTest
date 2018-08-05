@@ -7,10 +7,16 @@ OtherDocument, конкретный класс, имеющий 2 коллекц�
 
 Основная цель проекта - реализовать следующее:
 
-[ ] Table per type
-[ ] Complex types
-~~~ [ ] Lazy load ~~~
-[ ] Eager load
-[ ] Specifications in access layer
-[ ] Fetch / Update strategy
-[ ] Caching in Redis
+- [ ] Table per type
+
+- [ ] Complex types
+
+- [ ]  ~~~Lazy load~~~
+
+- [ ] Eager load
+
+- [ ] Specifications in access layer
+
+- [ ] Fetch / Update strategy
+
+- [ ] Caching in Redis
