@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace OrmTest
+namespace WebApp
 {
 	public class Program
 	{

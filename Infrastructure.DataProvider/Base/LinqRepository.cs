@@ -1,89 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Domain.FetchStrategies;
+using Domain;
 using Infrastructure.DomainBase;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider
 {
-	public static class WorkItemStrategyHelper
-	{
-		private static Specification<OtherDocumentDto> AsSpecification(this OtherDocumentWorkItemStrategy strategy)
-		{
-			var specification = new Specification<OtherDocumentDto>();
-
-			if (strategy.WithAttachments)
-			{
-				specification.FetchStrategy.Include(w => w.DocumentDto.AttachmentDtos);
-			}
-
-			if (strategy.WithItems)
-			{
-				specification.FetchStrategy.Include(w => w.OtherDocumentItemDtos);
-			}
-
-			if (strategy.WithPayments)
-			{
-				specification.FetchStrategy.Include(w => w.OtherDocumentPaymentDtos);
-			}
-
-			if (!strategy.WithDeleted)
-			{
-				specification.Predicate = w => !w.Deleted;
-			}
-
-			return specification;
-		}
-
-		private static Specification<DocumentDto> AsSpecification(this DocumentWorkItemStrategy strategy)
-		{
-			var specification = new Specification<DocumentDto>();
-
-			if (strategy.WithAttachments)
-			{
-				specification.FetchStrategy.Include(w => w.AttachmentDtos);
-			}
-
-			if (!strategy.WithDeleted)
-			{
-				specification.Predicate = w => !w.Deleted;
-			}
-
-			specification.FetchStrategy.Include(w => w.OtherDocumentDto);
-
-			return specification;
-		}
-
-		public static Specification<TDto> AsSpecification<TEntity, TDto, TWorkItemStrategy>(this TWorkItemStrategy strategy)
-			where TEntity : Entity
-			where TDto : class, IDataTransferObject<TEntity, TWorkItemStrategy>, new()
-			where TWorkItemStrategy : WorkItemStrategy
-		{
-			switch (strategy)
-			{
-				case OtherDocumentWorkItemStrategy otherDocumentWorkItemStrategy:
-					return (Specification<TDto>)(object)otherDocumentWorkItemStrategy.AsSpecification();
-				case DocumentWorkItemStrategy documentWorkItemStrategy:
-					return (Specification<TDto>)(object)documentWorkItemStrategy.AsSpecification();
-				default:
-				{
-					var spec = new Specification<TDto>();
-					if (!strategy.WithDeleted)
-					{
-						spec.Predicate = w => !w.Deleted;
-					}
-
-					return spec;
-				}
-			}
-		}
-	}
-
-	public abstract class LinqRepository<TEntity, TDto, TWorkItemStrategy> : Repository<TEntity, TWorkItemStrategy>
-		where TEntity : Entity
-		where TDto : class, IDataTransferObject<TEntity, TWorkItemStrategy>, new()
-		where TWorkItemStrategy : WorkItemStrategy
+	public abstract class LinqRepository<TDomainEntity, TDto, TSpecification> : Repository<TDomainEntity, TDto, TSpecification>
+		where TDomainEntity : Entity
+		where TDto : class, IDataTransferObject<TDomainEntity>, new()
+		where TSpecification : ISpecification<TDto>
 	{
 		protected readonly ApplicationContext Context;
 		private DbSet<TDto> _entities;
@@ -93,122 +20,108 @@ namespace Infrastructure.DataProvider
 			Context = context;
 		}
 
-		protected virtual IQueryable<TDto> QueryAll => Table;
+		protected virtual IQueryable<TDto> QueryAll => DbSetTable;
 
-		protected DbSet<TDto> Table => _entities ?? (_entities = Context.Set<TDto>());
+	    /// <summary>
+	    ///     Таблица с данными
+	    /// </summary>
+	    public override IQueryable<TDto> Table(bool readOnly = false)
+	    {
+	        return readOnly 
+                ? DbSetTable.AsNoTracking() 
+                : DbSetTable;
+	    }
 
-		protected abstract Specification<TDto> ToSpecification(TWorkItemStrategy workItemStrategy);
+        protected DbSet<TDto> DbSetTable => _entities ?? (_entities = Context.Set<TDto>());
 
-		/// <summary>
-		///     Remove entity
-		/// </summary>
-		/// <param name="entity">Entity</param>
-		public override bool Remove(TEntity entity)
+	    public override void Add(TDto entity)
+	    {
+	        if (entity != null)
+	        {
+	            DbSetTable.Add(entity);
+	        }
+	    }
+
+	    public override void Remove(int id)
+	    {
+	        var dto = new TDto { Id = id};
+
+	        DbSetTable.Attach(dto);
+	        DbSetTable.Remove(dto);
+	    }
+
+	    public override void Remove(int[] ids)
+	    {
+            ids.ToList().ForEach(Remove);
+	    }
+
+        /// <summary>
+        ///     Remove entity
+        /// </summary>
+        /// <param name="entity">Entity</param>
+        public override void Remove(TDto entity)
 		{
-			var dto = QueryAll.SingleOrDefault(d => d.Id == entity.Id);
-			if (dto == null)
+			if (entity != null)
 			{
-				return false;
-			}
-
-			Table.Remove(dto);
-			return true;
+			    Remove(entity.Id);
+            }
 		}
 
-		protected IQueryable<TDto> BaseQuery(ISpecification<TDto> specification)
-		{
-			var query = QueryAll;
+	    public override IEnumerable<TDto> GetBySpecification(bool readOnly = true, TSpecification specification = default(TSpecification))
+	    {
+	        if (specification == null)
+	        {
+	            BaseQuery(readOnly: readOnly);
+	        }
+	        return BaseQuery(specification, readOnly);
+	    }
 
-			query = specification.SatisfyingEntitiesFrom(query);
+	    protected IQueryable<TDto> BaseQuery(ISpecification<TDto> specification = null, bool readOnly = false)
+		{
+		    if (specification == null)
+		    {
+		        return Table(readOnly);
+		    }
+
+            var query = specification.SatisfyingEntitiesFrom(Table(readOnly));
 
 			return specification.FetchStrategy == null
 				? query
 				: specification.FetchStrategy.IncludePaths.Aggregate(query, (current, path) => current.Include(path));
 		}
 
-		public override IReadOnlyCollection<TEntity> GetMany(IEnumerable<int> ids, TWorkItemStrategy workItemStrategy = null)
+		public override IReadOnlyCollection<TDto> Get(IEnumerable<int> ids, TSpecification specification = default(TSpecification))
 		{
-			var query = QueryAll;
-			if (workItemStrategy != null)
-			{
-				query = BaseQuery(ToSpecification(workItemStrategy));
-			}
-
-			return query
-				.Where(dto => ids.Contains(dto.Id))
-				.Select(dto => dto.Reconstitute(workItemStrategy))
+		    return BaseQuery(specification)
+                .Where(dto => ids.Contains(dto.Id))
 				.ToList()
 				.AsReadOnly();
 		}
 
-		/// <summary>
-		///     Get entity by identifier
-		/// </summary>
-		/// <param name="id">Identifier</param>
-		/// <param name="workItemStrategy"></param>
-		/// <returns>Entity</returns>
-		public override TEntity Get(int id, TWorkItemStrategy workItemStrategy = null)
+        /// <summary>
+        ///     Get entity by identifier
+        /// </summary>
+        /// <param name="id">Identifier</param>
+        /// <param name="specification"></param>
+        /// <returns>Entity</returns>
+        public override TDto Get(int id, TSpecification specification = default(TSpecification))
 		{
-			//var query = workItemStrategy != null
-			//	? BaseQuery(ToSpecification(workItemStrategy))
-			//	: QueryAll;
-
-			var query = workItemStrategy != null
-				? BaseQuery(workItemStrategy.AsSpecification<TEntity, TDto, TWorkItemStrategy>())
-				: QueryAll;
-
-			return query
-				.FirstOrDefault(w => w.Id == id)
-				?.Reconstitute(workItemStrategy);
+		    return BaseQuery(specification)
+                .FirstOrDefault(w => w.Id == id);
 		}
 
 		/// <summary>
 		///     Получить все экземпляры сущности из репозитория
 		/// </summary>
 		/// <returns>Коллекция всех экземпляров сущности</returns>
-		public override IReadOnlyCollection<TEntity> GetAll(TWorkItemStrategy workItemStrategy = null)
+		public override IReadOnlyCollection<TDto> GetAll(TSpecification specification = default(TSpecification))
 		{
-			var query = workItemStrategy != null
-				? BaseQuery(workItemStrategy.AsSpecification<TEntity, TDto, TWorkItemStrategy>())
-				: QueryAll;
-
-			return query
-				.Select(dto => dto.Reconstitute(workItemStrategy))
-				.ToList()
+            return BaseQuery(specification)
+                .ToList()
 				.AsReadOnly();
 		}
 
-		/// <summary>
-		///     Сохранить экземпляр сущности в репозиторий
-		/// </summary>
-		/// <param name="entity">Экземпляр сущности для сохранения</param>
-		/// <param name="workItemStrategy"></param>
-		/// <returns>Флаг успешности сохранения</returns>
-		public override bool Save(TEntity entity, TWorkItemStrategy workItemStrategy = null)
-		{
-			var dto = Table.SingleOrDefault(d => d.Id.Equals(entity.Id));
-			var isNew = false;
-			if (dto == null)
-			{
-				dto = new TDto();
-				isNew = true;
-			}
-
-			dto.Update(entity, workItemStrategy);
-			Update(dto);
-
-			if (isNew)
-			{
-				Table.Add(dto);
-			}
-
-			Context.SaveChanges();
-
-			entity.Id = dto.Id;
-			return true;
-		}
-
-		protected void Update(TDto entity)
+		public override void Update(TDto entity)
 		{
 			var entry = Context.Entry(entity);
 

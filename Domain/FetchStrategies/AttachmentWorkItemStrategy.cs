@@ -4,7 +4,7 @@ namespace Domain.FetchStrategies
 {
 	public class AttachmentWorkItemStrategy : WorkItemStrategy
 	{
-		protected AttachmentWorkItemStrategy(bool withDeleted = false) : base(withDeleted)
+		protected AttachmentWorkItemStrategy(bool withDeleted = false, bool readOnly = false, bool cacheResult = false) : base(withDeleted, readOnly, cacheResult)
 		{
 		}
 	}

@@ -23,12 +23,14 @@
     <Compile Remove="Migrations\20180709182523_AddIdentityToPaymentAndItems.cs" />
     <Compile Remove="Migrations\20180724063504_Initial.cs" />
     <Compile Remove="Migrations\20180725115704_Initial.cs" />
+    <Compile Remove="Migrations\20180725115802_Initial.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.1" />
+    <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>

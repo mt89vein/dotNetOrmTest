@@ -2,22 +2,19 @@
 using System.Linq;
 using Domain;
 using Domain.Core;
-using Domain.FetchStrategies;
 
 namespace Infrastructure.DataProvider
 {
-	public partial class OtherDocumentDto : IDataTransferObject<OtherDocument, OtherDocumentWorkItemStrategy>
+	public partial class OtherDocumentDto : IDataTransferObject<OtherDocument>
 	{
-		public OtherDocument Reconstitute(OtherDocumentWorkItemStrategy workItemStrategy)
+		public OtherDocument Reconstitute()
 		{
-			var attachments = workItemStrategy?.WithAttachments == true
-				? DocumentDto.AttachmentDtos.Select(w => w.Reconstitute(null)).ToList()
-				: new List<Attachment>();
+			var attachments = DocumentDto.AttachmentDtos?.Select(w => w.Reconstitute()).ToList() ?? new List<Attachment>();
 
 			return new OtherDocument(Id, DocumentDto.Name, TestName, attachments, Deleted);
 		}
 
-		public void Update(OtherDocument entity, OtherDocumentWorkItemStrategy otherDocumentWorkItemStrategy)
+		public void Update(OtherDocument entity)
 		{
 			if (DocumentDto == null)
 			{
@@ -27,7 +24,7 @@ namespace Infrastructure.DataProvider
 				};
 			}
 
-			DocumentDto.Update(entity, otherDocumentWorkItemStrategy);
+			DocumentDto.Update(entity);
 			DocumentDto.DocumentType = DocumentType.OtherDocument;
 			TestName = entity.TestName;
 		}

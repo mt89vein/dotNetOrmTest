@@ -4,8 +4,8 @@ namespace Domain.FetchStrategies
 {
 	public class OtherDocumentItemWorkItemStrategy : WorkItemStrategy
 	{
-		public OtherDocumentItemWorkItemStrategy(bool withDeleted = false)
-			: base(withDeleted)
+		public OtherDocumentItemWorkItemStrategy(bool withDeleted = false, bool readOnly = false, bool cacheResult = false)
+			: base(withDeleted, readOnly, cacheResult)
 		{
 		}
 	}
