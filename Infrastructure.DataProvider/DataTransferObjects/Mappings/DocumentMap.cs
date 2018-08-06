@@ -10,8 +10,8 @@ namespace Infrastructure.DataProvider.Mappings
             builder.Property(w => w.Id).ValueGeneratedOnAdd().UseSqlServerIdentityColumn();
             builder.HasOne(w => w.OtherDocumentDto).WithOne(w => w.DocumentDto)
                 .HasForeignKey<OtherDocumentDto>(w => w.Id).OnDelete(DeleteBehavior.Cascade);
-            builder.HasMany(w => w.AttachmentDtos).WithOne(w => w.DocumentDto)
-                .HasForeignKey(w => w.DocumentId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasMany(w => w.AttachmentLinkDtos).WithOne(w => w.DocumentDto)
+                .HasForeignKey(w => w.DocumentId).OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("Document");
         }
     }

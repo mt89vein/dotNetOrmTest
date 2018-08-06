@@ -5,13 +5,18 @@ namespace Infrastructure.DataProvider
 {
     public partial class DocumentDto
     {
+        public DocumentDto()
+        {
+            AttachmentLinkDtos = new HashSet<AttachmentLinkDto>();
+        }
+
         public string Name { get; set; }
 
         public DocumentType DocumentType { get; set; }
 
-        public virtual OtherDocumentDto OtherDocumentDto { get; set; }
+        public OtherDocumentDto OtherDocumentDto { get; set; }
 
-        public virtual ICollection<AttachmentDto> AttachmentDtos { get; set; }
+        public ICollection<AttachmentLinkDto> AttachmentLinkDtos { get; set; }
 
         public bool Deleted { get; set; }
 

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider
 {
     public class GenericFetchStrategy<T> : AbstractFetchStrategy<T>
+        where T : class
     {
         private readonly IList<string> _properties;
 
@@ -15,12 +17,12 @@ namespace Infrastructure.DataProvider
 
         public override IEnumerable<string> IncludePaths => _properties;
 
-        public override IFetchStrategy<T> Include(Expression<Func<T, object>> path)
+        public override IFetchStrategy<DbSet<T>> Add(Expression<Func<DbSet<T>, object>> path)
         {
-            return Include(path.ToIncludeString());
+            return Add(path.ToIncludeString());
         }
 
-        public override IFetchStrategy<T> Include(string path)
+        public override IFetchStrategy<DbSet<T>> Add(string path)
         {
             _properties.Add(path);
             return this;

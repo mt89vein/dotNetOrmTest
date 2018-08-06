@@ -2,11 +2,19 @@
 
 namespace Domain.FetchStrategies
 {
-	public class OtherDocumentPaymentWorkItemStrategy : WorkItemStrategy
+	public class OtherDocumentPaymentWorkItemStrategy : IWorkItemStrategy
 	{
 		public OtherDocumentPaymentWorkItemStrategy(bool withDeleted = false, bool readOnly = false, bool cacheResult = false)
-			: base(withDeleted, readOnly, cacheResult)
 		{
-		}
+		    WithDeleted = withDeleted;
+		    ReadOnly = readOnly;
+		    CacheResult = cacheResult;
+        }
+
+	    public bool WithDeleted { get; }
+
+	    public bool ReadOnly { get; }
+
+	    public bool CacheResult { get; }
 	}
 }

@@ -29,37 +29,67 @@ namespace Infrastructure.DataProvider
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.And);
+            if (first != null && second != null)
+            {
+                return first.Compose(second, Expression.And);
+            }
+
+            return first ?? second;
         }
 
         public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            if (first != null && second != null)
+            {
+                return first.Compose(second, Expression.AndAlso);
+            }
+
+            return first ?? second;
         }
 
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.Or);
+            if (first != null && second != null)
+            {
+                return first.Compose(second, Expression.Or);
+            }
+
+            return first ?? second;
         }
 
         public static Expression<Func<T, bool>> OrElse<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.OrElse);
+            if (first != null && second != null)
+            {
+                return first.Compose(second, Expression.OrElse);
+            }
+
+            return first ?? second;
         }
 
         public static Expression<Func<T, bool>> AndNot<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(Not(second), Expression.And);
+            if (first != null && second != null)
+            {
+                return first.Compose(second.Not(), Expression.And);
+            }
+
+            return first ?? second.Not();
         }
 
         public static Expression<Func<T, bool>> OrNot<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second.Not(), Expression.Or);
+            if (first != null && second != null)
+            {
+                return first.Compose(second.Not(), Expression.Or);
+            }
+
+            return first ?? second.Not();
         }
 
         public static Expression<Func<T, bool>> Not<T>(this Expression<Func<T, bool>> expression)

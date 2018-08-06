@@ -54,23 +54,53 @@ namespace Infrastructure.DataProvider
                 {
                     Id = 1,
                     Deleted = false,
-                    DocumentId = 1,
                     Path = "some/path"
                 },
                 new AttachmentDto
                 {
                     Id = 2,
                     Deleted = false,
-                    DocumentId = 1,
                     Path = "some/another/path"
                 },
                 new AttachmentDto
                 {
                     Id = 3,
                     Deleted = true,
-                    DocumentId = 1,
                     Path = "some/either/path"
                 });
+
+            builder.Entity<AttachmentLinkDto>().HasData(
+                new AttachmentLinkDto
+                {
+                    Id = 1,
+                    AttachmentId = 1,
+                    DocumentId = 1,
+                },
+                new AttachmentLinkDto
+                {
+                    Id = 2,
+                    AttachmentId = 2,
+                    DocumentId = 1,
+                },
+                new AttachmentLinkDto
+                {
+                    Id = 3,
+                    AttachmentId = 3,
+                    DocumentId = 2,
+                },
+                new AttachmentLinkDto
+                {
+                    Id = 4,
+                    AttachmentId = 1,
+                    DocumentId = 2,
+                },
+                new AttachmentLinkDto
+                {
+                    Id =  5,
+                    AttachmentId = 2,
+                    DocumentId = 3,
+                }
+            );
 
             builder.Entity<OtherDocumentDto>().HasData(
                 new OtherDocumentDto
@@ -216,15 +246,183 @@ namespace Infrastructure.DataProvider
                     OtherDocumentId = 4
                 }
             );
+
+            builder.Entity<NestedItemDto>().HasData(
+                new NestedItemDto
+                {
+                    Id = 1,
+                    Deleted = false,
+                    NestedItemName = "nested item name 1",
+                    OtherDocumentItemId = 1
+                },
+                new NestedItemDto
+                {
+                    Id = 2,
+                    Deleted = false,
+                    NestedItemName = "nested item name 2",
+                    OtherDocumentItemId = 1
+                },
+                new NestedItemDto
+                {
+                    Id = 3,
+                    Deleted = false,
+                    NestedItemName = "nested item name 3",
+                    OtherDocumentItemId = 2
+                },
+                new NestedItemDto
+                {
+                    Id = 4,
+                    Deleted = false,
+                    NestedItemName = "nested item name 4",
+                    OtherDocumentItemId = 2
+                },
+                new NestedItemDto
+                {
+                    Id = 5,
+                    Deleted = false,
+                    NestedItemName = "nested item name 5",
+                    OtherDocumentItemId = 3
+                },
+                new NestedItemDto
+                {
+                    Id = 6,
+                    Deleted = false,
+                    NestedItemName = "nested item name 6",
+                    OtherDocumentItemId = 3
+                },
+                new NestedItemDto
+                {
+                    Id = 7,
+                    Deleted = false,
+                    NestedItemName = "nested item name 7",
+                    OtherDocumentItemId = 4
+                },
+                new NestedItemDto
+                {
+                    Id = 8,
+                    Deleted = false,
+                    NestedItemName = "nested item name 8",
+                    OtherDocumentItemId = 4
+                },
+                new NestedItemDto
+                {
+                    Id = 9,
+                    Deleted = false,
+                    NestedItemName = "nested item name 9",
+                    OtherDocumentItemId = 8
+                }
+            );
+
+            builder.Entity<OneMoreNestedItemDto>().HasData(
+                new OneMoreNestedItemDto
+                {
+                    Id = 1,
+                    OneMoreNestedItemName = "one more nested item name 1",
+                    NestedItemId = 1
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 2,
+                    OneMoreNestedItemName = "one more nested item name 2",
+                    NestedItemId = 1
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 3,
+                    OneMoreNestedItemName = "one more nested item name 3",
+                    NestedItemId = 2
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 4,
+                    OneMoreNestedItemName = "one more nested item name 4",
+                    NestedItemId = 2
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 5,
+                    OneMoreNestedItemName = "one more nested item name 5",
+                    NestedItemId = 3
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 6,
+                    OneMoreNestedItemName = "one more nested item name 6",
+                    NestedItemId = 3
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 7,
+                    OneMoreNestedItemName = "one more nested item name 7",
+                    NestedItemId = 4
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 8,
+                    OneMoreNestedItemName = "one more nested item name 8",
+                    NestedItemId = 4
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 9,
+                    OneMoreNestedItemName = "one more nested item name 9",
+                    NestedItemId = 5
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 10,
+                    OneMoreNestedItemName = "one more nested item name 10",
+                    NestedItemId = 5
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 11,
+                    OneMoreNestedItemName = "one more nested item name 11",
+                    NestedItemId = 6
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 12,
+                    OneMoreNestedItemName = "one more nested item name 12",
+                    NestedItemId = 6
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 13,
+                    OneMoreNestedItemName = "one more nested item name 13",
+                    NestedItemId = 7
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 14,
+                    OneMoreNestedItemName = "one more nested item name 14",
+                    NestedItemId = 7
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 15,
+                    OneMoreNestedItemName = "one more nested item name 15",
+                    NestedItemId = 8
+                },
+                new OneMoreNestedItemDto
+                {
+                    Id = 16,
+                    OneMoreNestedItemName = "one more nested item name 16",
+                    NestedItemId = 8
+                }
+            );
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new AttachmentMap());
+            builder.ApplyConfiguration(new AttachmentLinkMap());
             builder.ApplyConfiguration(new DocumentMap());
             builder.ApplyConfiguration(new OtherDocumentMap());
             builder.ApplyConfiguration(new OtherDocumentItemMap());
             builder.ApplyConfiguration(new OtherDocumentPaymentMap());
+            builder.ApplyConfiguration(new NestedItemMap());
+            builder.ApplyConfiguration(new OneMoreNestedItemMap());
 
             Seed(builder);
             base.OnModelCreating(builder);

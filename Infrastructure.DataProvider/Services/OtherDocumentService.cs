@@ -3,11 +3,11 @@ using Domain.FetchStrategies;
 using Domain.Services;
 using Infrastructure.DataProvider.Caching;
 using Infrastructure.DomainBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Services
 {
-    public class OtherDocumentService : BaseService<OtherDocument, OtherDocumentDto, OtherDocumentWorkItemStrategy,
-        ISpecification<OtherDocumentDto>>, IOtherDocumentService
+    public class OtherDocumentService : BaseService<OtherDocument, OtherDocumentDto, ISpecification<OtherDocumentDto>>, IOtherDocumentService
     {
         public OtherDocumentService(
             IRepository<OtherDocument, OtherDocumentDto, ISpecification<OtherDocumentDto>> repository,
@@ -16,34 +16,58 @@ namespace Infrastructure.DataProvider.Services
         {
         }
 
-        protected override ISpecification<OtherDocumentDto> ToSpecification(
-            OtherDocumentWorkItemStrategy otherDocumentWorkItemStrategy)
+        protected override ISpecification<OtherDocumentDto> ToSpecification(IWorkItemStrategy workItemStrategy)
         {
             var specification = new Specification<OtherDocumentDto>();
 
-            if (otherDocumentWorkItemStrategy == null)
+            if (!(workItemStrategy is OtherDocumentWorkItemStrategy strategy))
             {
                 return specification;
             }
 
-            if (otherDocumentWorkItemStrategy.WithAttachments)
+            if (strategy.WithAttachments)
             {
-                specification.FetchStrategy.Include(w => w.DocumentDto.AttachmentDtos);
+                specification.FetchStrategy.Add(
+                    w => w.Include(x => x.DocumentDto)
+                            .ThenInclude(x => x.AttachmentLinkDtos)
+                                .ThenInclude(x => x.AttachmentDto)
+                );
             }
 
-            if (otherDocumentWorkItemStrategy.WithItems)
+            if (strategy.WithItems)
             {
-                specification.FetchStrategy.Include(w => w.OtherDocumentItemDtos);
+                if (strategy.OtherDocumentItemWorkItemStrategy.WithNestedItems)
+                {
+                    if (strategy.OtherDocumentItemWorkItemStrategy.NestedItemWorkItemStrategy
+                        .WithOneMoreNestedItems)
+                    {
+                        specification.FetchStrategy.Add(
+                            w => w.Include(x => x.OtherDocumentItemDtos)
+                                        .ThenInclude(x => x.NestedItemDtos)
+                                            .ThenInclude(x => x.OneMoreNestedItemDtos)
+                        );
+                    }
+                    else
+                    {
+                        specification.FetchStrategy.Add(
+                            w => w.Include(x => x.OtherDocumentItemDtos)
+                                      .ThenInclude(x => x.NestedItemDtos));
+                    }
+                }
+                else
+                {
+                    specification.FetchStrategy.Add(w => w.Include(x => x.OtherDocumentItemDtos));
+                }
             }
 
-            if (otherDocumentWorkItemStrategy.WithPayments)
+            if (strategy.WithPayments)
             {
-                specification.FetchStrategy.Include(w => w.OtherDocumentPaymentDtos);
+                specification.FetchStrategy.Add(w => w.Include(x => x.OtherDocumentPaymentDtos));
             }
 
-            if (!otherDocumentWorkItemStrategy.WithDeleted)
+            if (!strategy.WithDeleted)
             {
-                specification.Predicate = OnlyNotDeletedSpecification.Predicate;
+                specification.And(OnlyNotDeletedSpecification);
             }
 
             return specification;

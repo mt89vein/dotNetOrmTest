@@ -8,8 +8,8 @@ namespace Infrastructure.DataProvider.Mappings
         public void Configure(EntityTypeBuilder<AttachmentDto> builder)
         {
             builder.Property(w => w.Id).ValueGeneratedOnAdd().UseSqlServerIdentityColumn();
-            builder.HasOne(w => w.DocumentDto).WithMany(w => w.AttachmentDtos)
-                .HasForeignKey(w => w.DocumentId);
+            builder.HasMany(w => w.AttachmentLinkDtos).WithOne(w => w.AttachmentDto)
+                .HasForeignKey(w => w.AttachmentId).OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("Attachment");
         }
     }

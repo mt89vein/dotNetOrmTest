@@ -1,6 +1,7 @@
 ﻿using Domain.FetchStrategies;
 using Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
@@ -41,6 +42,22 @@ namespace WebApp.Controllers
             return Ok(documents);
         }
 
+        [HttpPost]
+        public IActionResult UpdateOtherDocument(int id, OtherDocumentEditViewModel viewModel)
+        {
+            _otherDocumentService.Update(viewModel.GetModel());
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult InsertOtherDocument(int id, OtherDocumentEditViewModel viewModel)
+        {
+            _otherDocumentService.Insert(viewModel.GetModel());
+
+            return Ok();
+        }
+
         [HttpGet]
         public IActionResult OtherDocumentInfo(
             int id,
@@ -49,24 +66,23 @@ namespace WebApp.Controllers
             bool items = true,
             bool readOnly = true,
             bool cacheResult = true,
-            bool deleted = false
+            bool deleted = false,
+            bool withNestedItems = true,
+            bool withOneMoreNestedItems = true
         )
         {
-            var otherDocumentItemWorkItemStrategy = new OtherDocumentItemWorkItemStrategy(deleted, true, true);
-            var otherDocumentPaymentWorkItemStrategy = new OtherDocumentPaymentWorkItemStrategy(deleted, true, true);
+            var nestedItemWorkItemStrategy =
+                new NestedItemWorkItemStrategy(withOneMoreNestedItems, deleted, readOnly, cacheResult);
+            var otherDocumentItemWorkItemStrategy = new OtherDocumentItemWorkItemStrategy(withNestedItems,
+                nestedItemWorkItemStrategy, deleted, readOnly, cacheResult);
+            var otherDocumentPaymentWorkItemStrategy =
+                new OtherDocumentPaymentWorkItemStrategy(deleted, readOnly, cacheResult);
             var strategy = new OtherDocumentWorkItemStrategy(deleted, attachments, payments, items, readOnly,
                 cacheResult, otherDocumentItemWorkItemStrategy, otherDocumentPaymentWorkItemStrategy);
 
             var document = _otherDocumentService.Get(id, strategy);
-            var documentItems = _otherDocumentItemService.GetByOtherDocumentId(id, otherDocumentItemWorkItemStrategy);
-            var documentPayments =  _otherDocumentPaymentService.GetByOtherDocumentId(id, otherDocumentPaymentWorkItemStrategy);
 
-            return Ok(new
-            {
-                document,
-                documentItems,
-                documentPayments
-            });
+            return Ok(document);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Domain;
 using Infrastructure.DomainBase;
 
 namespace Infrastructure.DataProvider
@@ -12,7 +13,7 @@ namespace Infrastructure.DataProvider
     /// <typeparam name="TDomainEntity"></typeparam>
     public abstract class
         Repository<TDomainEntity, TDto, TSpecification> : IRepository<TDomainEntity, TDto, TSpecification>
-        where TDto : IDataTransferObject<TDomainEntity>
+        where TDto : class, IDataTransferObject<TDomainEntity>
         where TSpecification : ISpecification<TDto>
     {
         public abstract IQueryable<TDto> Table(bool readOnly = false);
@@ -79,6 +80,7 @@ namespace Infrastructure.DataProvider
         /// Обновить сущность
         /// </summary>
         /// <param name="entity"></param>
-        public abstract void Update(TDto entity);
+        /// <param name="updateWorkItemStrategy"></param>
+        public abstract void Update(TDto entity, IWorkItemStrategy updateWorkItemStrategy = null);
     }
 }

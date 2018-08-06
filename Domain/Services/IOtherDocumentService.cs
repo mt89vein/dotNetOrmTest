@@ -1,8 +1,6 @@
-﻿using Domain.FetchStrategies;
-
-namespace Domain.Services
+﻿namespace Domain.Services
 {
-    public interface IOtherDocumentService : IBaseService<OtherDocument, OtherDocumentWorkItemStrategy>
+    public interface IOtherDocumentService : IBaseService<OtherDocument>
     {
     }
 }

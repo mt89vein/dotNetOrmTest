@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Domain;
 using Domain.Core;
@@ -20,9 +21,19 @@ namespace Infrastructure.DataProvider
 
         public void Update(Document entity)
         {
-            Id = entity.Id;
-            Name = entity.Name;
-            // update logic
+            switch (entity)
+            {
+                case OtherDocument otherDocument:
+                {
+                    if (OtherDocumentDto == null)
+                    {
+                        OtherDocumentDto = new OtherDocumentDto();
+                    }
+                    OtherDocumentDto.Update(otherDocument);
+                    return;
+                }
+                // other inherited documents...
+            }
         }
     }
 
@@ -30,14 +41,26 @@ namespace Infrastructure.DataProvider
     {
         public static void UpdateFrom(this DocumentDto dto, Document entity)
         {
-            dto.AttachmentDtos = entity.Attachments
-                .Select(w => new AttachmentDto
-                {
-                    Deleted = false,
-                    DocumentId = w.DocumentId,
-                    Path = w.Path
-                }).ToList();
+            var newAttachmentLinks = new List<AttachmentLinkDto>();
 
+            foreach (var entityAttachment in entity.Attachments)
+            {
+                var link = dto.AttachmentLinkDtos.SingleOrDefault(w => w.AttachmentId == entityAttachment.Id);
+                if (link != null)
+                {
+                    newAttachmentLinks.Add(link);
+                }
+                else
+                {
+                    newAttachmentLinks.Add(new AttachmentLinkDto
+                    {
+                        AttachmentId = entityAttachment.Id,
+                        DocumentId = entity.Id
+                    });
+                }
+            }
+            dto.AttachmentLinkDtos = newAttachmentLinks;
+            dto.Name = entity.Name;
             dto.Deleted = entity.Deleted;
         }
     }

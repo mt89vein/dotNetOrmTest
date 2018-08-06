@@ -1,12 +1,17 @@
-﻿namespace Infrastructure.DataProvider
+﻿using System.Collections.Generic;
+
+namespace Infrastructure.DataProvider
 {
     public partial class AttachmentDto
     {
+        public AttachmentDto()
+        {
+            AttachmentLinkDtos = new HashSet<AttachmentLinkDto>();
+        }
+
         public string Path { get; set; }
 
-        public DocumentDto DocumentDto { get; set; }
-
-        public int? DocumentId { get; set; }
+        public ICollection<AttachmentLinkDto> AttachmentLinkDtos { get; set; }
 
         public bool Deleted { get; set; }
 

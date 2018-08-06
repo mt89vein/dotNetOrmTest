@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider
 {
     public class Specification<T> : ISpecification<T>
+        where T : class
     {
         public Specification()
-            : this((Expression<Func<T, bool>>) null)
+            : this((Expression<Func<T, bool>>)null)
         {
         }
 
@@ -96,7 +98,7 @@ namespace Infrastructure.DataProvider
         }
 
         protected virtual Specification<T> Instanciate(Expression<Func<T, bool>> predicate,
-            IFetchStrategy<T> strategy = null)
+            IFetchStrategy<DbSet<T>> strategy = null)
         {
             var specification = new Specification<T>(predicate);
             if (strategy != null)
@@ -107,14 +109,14 @@ namespace Infrastructure.DataProvider
             return specification;
         }
 
-        protected IFetchStrategy<T> InstanciateFetchStrategy(IFetchStrategy<T> strategy)
+        protected IFetchStrategy<DbSet<T>> InstanciateFetchStrategy(IFetchStrategy<DbSet<T>> strategy)
         {
             var thisPaths = FetchStrategy != null ? FetchStrategy.IncludePaths : new List<string>();
             var paramPaths = strategy != null ? strategy.IncludePaths : new List<string>();
             var includePaths = thisPaths.Union(paramPaths);
 
             var newStrategy = new GenericFetchStrategy<T>();
-            foreach (var includePath in includePaths) newStrategy.Include(includePath);
+            foreach (var includePath in includePaths) newStrategy.Add(includePath);
 
             return newStrategy;
         }
@@ -191,6 +193,8 @@ namespace Infrastructure.DataProvider
 
         public Expression<Func<T, bool>> Predicate { get; set; }
 
+        public IFetchStrategy<DbSet<T>> FetchStrategy { get; set; }
+
         public virtual T SatisfyingEntityFrom(IQueryable<T> query)
         {
             return SatisfyingEntitiesFrom(query).FirstOrDefault();
@@ -205,8 +209,6 @@ namespace Infrastructure.DataProvider
         {
             return Predicate == null || new[] {entity}.AsQueryable().Any(Predicate);
         }
-
-        public IFetchStrategy<T> FetchStrategy { get; set; }
 
         #endregion
     }

@@ -6,7 +6,7 @@ namespace Infrastructure.DataProvider
     {
         public OtherDocumentPayment Reconstitute()
         {
-            return new OtherDocumentPayment(Id, Total, OtherDocumentId);
+            return new OtherDocumentPayment(OtherDocumentId, Total, Deleted, Id);
         }
 
         public void Update(OtherDocumentPayment entity)

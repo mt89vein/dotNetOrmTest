@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Domain;
 using Infrastructure.DataProvider;
 
 namespace Infrastructure.DomainBase
@@ -11,7 +12,7 @@ namespace Infrastructure.DomainBase
     /// <typeparam name="TSpecification"></typeparam>
     /// <typeparam name="TDto">DTO</typeparam>
     public interface IRepository<TDomainEntity, TDto, in TSpecification>
-        where TDto : IDataTransferObject<TDomainEntity>
+        where TDto : class, IDataTransferObject<TDomainEntity>
         where TSpecification : ISpecification<TDto>
     {
         IQueryable<TDto> Table(bool readOnly = true);
@@ -75,9 +76,10 @@ namespace Infrastructure.DomainBase
         void Remove(int[] ids);
 
         /// <summary>
-        /// Обновить сущность
+        /// Обновить сущность по стратегии
         /// </summary>
         /// <param name="entity"></param>
-        void Update(TDto entity);
+        /// <param name="updateItemStrategy"></param>
+        void Update(TDto entity, IWorkItemStrategy updateItemStrategy = null);
     }
 }

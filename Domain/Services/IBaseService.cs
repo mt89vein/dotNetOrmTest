@@ -8,9 +8,8 @@ namespace Domain.Services
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <typeparam name="TWorkItemStrategy"></typeparam>
-    public interface IBaseService<TEntity, in TWorkItemStrategy>
+    public interface IBaseService<TEntity>
         where TEntity : Entity
-        where TWorkItemStrategy : WorkItemStrategy
     {
         /// <summary>
         /// Вернет запись по идентификатору.
@@ -18,16 +17,16 @@ namespace Domain.Services
         /// <param name="id"></param>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        TEntity Get(int id, TWorkItemStrategy workItemStrategy = null);
+        TEntity Get(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
-        IReadOnlyCollection<TEntity> Get(IEnumerable<int> ids, TWorkItemStrategy workItemStrategy = null);
+        IReadOnlyCollection<TEntity> Get(IEnumerable<int> ids, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Получить все
         /// </summary>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        IReadOnlyCollection<TEntity> Get(TWorkItemStrategy workItemStrategy = null);
+        IReadOnlyCollection<TEntity> Get(IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Добавление записи.
@@ -47,13 +46,15 @@ namespace Domain.Services
         /// Обновление записи.
         /// </summary>
         /// <param name="entity"></param>
-        void Update(TEntity entity);
+        /// <param name="workItemStrategy"></param>
+        void Update(TEntity entity, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Обновление записей.
         /// </summary>
         /// <param name="entities"></param>
-        void Update(IEnumerable<TEntity> entities);
+        /// <param name="workItemStrategy"></param>
+        void Update(IEnumerable<TEntity> entities, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Удаление по идентификатору.

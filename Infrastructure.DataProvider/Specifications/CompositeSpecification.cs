@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider
 {
-    public abstract class CompositeSpecification<T> : ISpecification<T>
+    public abstract class CompositeSpecification<T> : ISpecification<T> where T : class
     {
         protected CompositeSpecification(Expression<Func<T, bool>> predicate)
         {
@@ -101,7 +102,7 @@ namespace Infrastructure.DataProvider
             return new[] {entity}.AsQueryable().Any(Predicate);
         }
 
-        public IFetchStrategy<T> FetchStrategy { get; set; }
+        public IFetchStrategy<DbSet<T>> FetchStrategy { get; set; }
 
         #endregion
     }

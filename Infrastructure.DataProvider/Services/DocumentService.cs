@@ -1,41 +1,63 @@
-﻿using Domain;
+﻿using System;
+using Domain;
 using Domain.FetchStrategies;
 using Domain.Services;
 using Infrastructure.DataProvider.Caching;
 using Infrastructure.DomainBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Services
 {
-    public class DocumentService : BaseService<Document, DocumentDto, DocumentWorkItemStrategy,
-        ISpecification<DocumentDto>>, IDocumentService
+    public class DocumentService : BaseService<Document, DocumentDto,ISpecification<DocumentDto>>, IDocumentService
     {
-        public DocumentService(IRepository<Document, DocumentDto, ISpecification<DocumentDto>> repository,
-            ApplicationContext context, IRedisService<DocumentDto, Document> redisService) : base(repository, context,
-            redisService)
+        private readonly IOtherDocumentService _otherDocumentService;
+        public DocumentService(
+            IRepository<Document, DocumentDto, ISpecification<DocumentDto>> repository,
+            IOtherDocumentService otherDocumentService,
+            ApplicationContext context, IRedisService<DocumentDto, Document> redisService
+            )
+            : base(repository, context, redisService)
         {
+            _otherDocumentService = otherDocumentService;
+        }
+
+        public override void Update(Document entity, IWorkItemStrategy documentWorkItemStrategy = null)
+        {
+            switch (entity)
+            {
+                case OtherDocument otherDocument:
+                    _otherDocumentService.Update(otherDocument, documentWorkItemStrategy);
+                    break;
+                // another document types...
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(entity));
         }
 
         protected override ISpecification<DocumentDto> ToSpecification(
-            DocumentWorkItemStrategy documentWorkItemStrategy)
+            IWorkItemStrategy documentWorkItemStrategy)
         {
             var specification = new Specification<DocumentDto>();
 
-            if (documentWorkItemStrategy == null)
+            if (!(documentWorkItemStrategy is DocumentWorkItemStrategy strategy))
             {
                 return specification;
             }
 
-            if (documentWorkItemStrategy.WithAttachments)
+            if (strategy.WithAttachments)
             {
-                specification.FetchStrategy.Include(w => w.AttachmentDtos);
+                specification.FetchStrategy.Add(
+                    w => w.Include(x => x.AttachmentLinkDtos)
+                        .ThenInclude(x => x.AttachmentDto)
+                );
             }
 
-            if (!documentWorkItemStrategy.WithDeleted)
+            if (!strategy.WithDeleted)
             {
-                specification.Predicate = w => !w.Deleted;
+                specification.And(OnlyNotDeletedSpecification);
             }
 
-            specification.FetchStrategy.Include(w => w.OtherDocumentDto);
+            specification.FetchStrategy.Add(w => w.Include(x => x.OtherDocumentDto));
 
             return specification;
         }

@@ -8,8 +8,7 @@ using Infrastructure.DomainBase;
 
 namespace Infrastructure.DataProvider.Services
 {
-    public class OtherDocumentPaymentService : BaseService<OtherDocumentPayment, OtherDocumentPaymentDto,
-        OtherDocumentPaymentWorkItemStrategy, ISpecification<OtherDocumentPaymentDto>>, IOtherDocumentPaymentService
+    public class OtherDocumentPaymentService : BaseService<OtherDocumentPayment, OtherDocumentPaymentDto, ISpecification<OtherDocumentPaymentDto>>, IOtherDocumentPaymentService
     {
         public OtherDocumentPaymentService(
             IRepository<OtherDocumentPayment, OtherDocumentPaymentDto, ISpecification<OtherDocumentPaymentDto>>
@@ -28,19 +27,18 @@ namespace Infrastructure.DataProvider.Services
             return Repository.GetBySpecification(specification: spec).Select(w => w.Reconstitute()).ToList();
         }
 
-        protected override ISpecification<OtherDocumentPaymentDto> ToSpecification(
-            OtherDocumentPaymentWorkItemStrategy otherDocumentPaymentWorkItemStrategy)
+        protected override ISpecification<OtherDocumentPaymentDto> ToSpecification(IWorkItemStrategy workItemStrategy)
         {
             var specification = new Specification<OtherDocumentPaymentDto>();
 
-            if (otherDocumentPaymentWorkItemStrategy == null)
+            if (!(workItemStrategy is OtherDocumentPaymentWorkItemStrategy strategy))
             {
                 return specification;
             }
 
-            if (!otherDocumentPaymentWorkItemStrategy.WithDeleted)
+            if (!strategy.WithDeleted)
             {
-                specification.Predicate = OnlyNotDeletedSpecification.Predicate;
+                specification.And(OnlyNotDeletedSpecification);
             }
 
             return specification;

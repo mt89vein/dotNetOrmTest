@@ -34,6 +34,9 @@ namespace Infrastructure.DataProvider.Helpers
                     break;
                 case ExpressionType.Parameter:
                     return;
+                case ExpressionType.Quote:
+                    CollectRelationalMembers(((UnaryExpression) exp).Operand, members);
+                    break;
                 default:
                     throw new InvalidOperationException("Invalid type of expression.");
             }

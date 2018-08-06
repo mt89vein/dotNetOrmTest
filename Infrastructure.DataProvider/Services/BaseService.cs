@@ -8,13 +8,10 @@ using Infrastructure.DomainBase;
 
 namespace Infrastructure.DataProvider
 {
-    public abstract class BaseService<TDomainEntity, TDto, TWorkItemStrategy, TSpecification> : IBaseService<
-        TDomainEntity,
-        TWorkItemStrategy>
+    public abstract class BaseService<TDomainEntity, TDto, TSpecification> : IBaseService<TDomainEntity>
         where TDomainEntity : Entity
-        where TWorkItemStrategy : WorkItemStrategy
         where TSpecification : ISpecification<TDto>
-        where TDto : IDataTransferObject<TDomainEntity>, new()
+        where TDto : class, IDataTransferObject<TDomainEntity>, new()
     {
         protected readonly ApplicationContext Context;
 
@@ -45,16 +42,16 @@ namespace Infrastructure.DataProvider
             entities.ToList().ForEach(Insert);
         }
 
-        public virtual void Update(TDomainEntity entity)
+        public virtual void Update(TDomainEntity entity, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             var dto = new TDto();
             dto.Update(entity);
-            Repository.Update(dto);
+            Repository.Update(dto, workItemStrategy);
         }
 
-        public virtual void Update(IEnumerable<TDomainEntity> entities)
+        public virtual void Update(IEnumerable<TDomainEntity> entities, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
-            entities.ToList().ForEach(Update);
+            entities.ToList().ForEach(w => Update(w, workItemStrategy));
         }
 
         public virtual void Delete(TDomainEntity entity)
@@ -83,7 +80,7 @@ namespace Infrastructure.DataProvider
             }
         }
 
-        public TDomainEntity Get(int id, TWorkItemStrategy workItemStrategy = null)
+        public TDomainEntity Get(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
@@ -98,7 +95,7 @@ namespace Infrastructure.DataProvider
             return GetCached(id, workItemStrategy);
         }
 
-        public IReadOnlyCollection<TDomainEntity> Get(IEnumerable<int> ids, TWorkItemStrategy workItemStrategy = null)
+        public IReadOnlyCollection<TDomainEntity> Get(IEnumerable<int> ids, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
@@ -116,7 +113,7 @@ namespace Infrastructure.DataProvider
             return GetCached(idsList, workItemStrategy);
         }
 
-        public IReadOnlyCollection<TDomainEntity> Get(TWorkItemStrategy workItemStrategy = null)
+        public IReadOnlyCollection<TDomainEntity> Get(IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
@@ -132,7 +129,7 @@ namespace Infrastructure.DataProvider
             throw new NotSupportedException();
         }
 
-        protected abstract TSpecification ToSpecification(TWorkItemStrategy workItemStrategy);
+        protected abstract TSpecification ToSpecification(IWorkItemStrategy workItemStrategy);
 
         /// <summary>
         /// Читаем с кэша, если там нет, то кэшируем в redis по ключу
@@ -140,7 +137,7 @@ namespace Infrastructure.DataProvider
         /// <param name="id"></param>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        private TDomainEntity GetCached(int id, TWorkItemStrategy workItemStrategy = null)
+        private TDomainEntity GetCached(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy != null)
             {
@@ -166,7 +163,7 @@ namespace Infrastructure.DataProvider
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
         private IReadOnlyCollection<TDomainEntity> GetCached(ICollection<int> ids,
-            TWorkItemStrategy workItemStrategy = null)
+            IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy != null)
             {

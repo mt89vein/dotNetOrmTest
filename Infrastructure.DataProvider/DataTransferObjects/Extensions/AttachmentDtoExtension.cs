@@ -6,14 +6,14 @@ namespace Infrastructure.DataProvider
     {
         public Attachment Reconstitute()
         {
-            return new Attachment(Path, Id, DocumentId);
+            return new Attachment(Path, Id, Deleted);
         }
 
         public void Update(Attachment entity)
         {
             Id = entity.Id;
             Path = entity.Path;
-            DocumentId = entity.DocumentId;
+            Deleted = entity.Deleted;
         }
     }
 }

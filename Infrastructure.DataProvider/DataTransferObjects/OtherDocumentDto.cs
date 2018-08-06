@@ -4,13 +4,19 @@ namespace Infrastructure.DataProvider
 {
     public partial class OtherDocumentDto
     {
+        public OtherDocumentDto()
+        {
+            OtherDocumentItemDtos = new HashSet<OtherDocumentItemDto>();
+            OtherDocumentPaymentDtos = new HashSet<OtherDocumentPaymentDto>();
+        }
+
         public string TestName { get; set; }
 
-        public virtual ICollection<OtherDocumentItemDto> OtherDocumentItemDtos { get; set; }
+        public ICollection<OtherDocumentItemDto> OtherDocumentItemDtos { get; set; }
 
-        public virtual ICollection<OtherDocumentPaymentDto> OtherDocumentPaymentDtos { get; set; }
+        public ICollection<OtherDocumentPaymentDto> OtherDocumentPaymentDtos { get; set; }
 
-        public virtual DocumentDto DocumentDto { get; set; }
+        public DocumentDto DocumentDto { get; set; }
 
         public bool Deleted { get; set; }
 

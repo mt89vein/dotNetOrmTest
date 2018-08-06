@@ -3,20 +3,16 @@ using Infrastructure.DomainBase;
 
 namespace Domain
 {
-	public abstract class Document : Entity
-	{
-		protected Document(int id, string name, List<Attachment> attachments, bool deleted)
-		{
-			Id = id;
-			Name = name;
-			Attachments = attachments;
-			Deleted = deleted;
-		}
+    public abstract class Document : Entity
+    {
+        protected Document(int id, string name, bool deleted, ICollection<Attachment> attachments) : base(id, deleted)
+        {
+            Name = name;
+            Attachments = attachments;
+        }
 
-		public string Name { get; }
+        public string Name { get; }
 
-		public List<Attachment> Attachments { get; }
-
-		public bool Deleted { get; }
-	}
+        public ICollection<Attachment> Attachments { get; }
+    }
 }

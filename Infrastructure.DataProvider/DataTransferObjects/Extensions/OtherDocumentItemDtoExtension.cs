@@ -1,4 +1,7 @@
-﻿using Domain;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Domain;
+using Domain.Core;
 
 namespace Infrastructure.DataProvider
 {
@@ -6,7 +9,8 @@ namespace Infrastructure.DataProvider
     {
         public OtherDocumentItem Reconstitute()
         {
-            return new OtherDocumentItem(Id, Name, OtherDocumentId);
+            var nestedItems = NestedItemDtos?.Select(w => w.Reconstitute()) ?? new List<NestedItem>();
+            return new OtherDocumentItem(Id, Name, OtherDocumentId, Deleted, nestedItems);
         }
 
         public void Update(OtherDocumentItem entity)
@@ -14,6 +18,8 @@ namespace Infrastructure.DataProvider
             Id = entity.Id;
             Name = entity.Name;
             OtherDocumentId = entity.OtherDocumentId;
+            Deleted = entity.Deleted;
+            NestedItemDtos = entity.NestedItems.Select(OtherDocumentItemExtension.UpdateNestedItem).ToList();
         }
     }
 }

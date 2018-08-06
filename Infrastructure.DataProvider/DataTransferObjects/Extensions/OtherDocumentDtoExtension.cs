@@ -9,10 +9,11 @@ namespace Infrastructure.DataProvider
     {
         public OtherDocument Reconstitute()
         {
-            var attachments = DocumentDto.AttachmentDtos?.Select(w => w.Reconstitute()).ToList() ??
-                              new List<Attachment>();
+            var attachments = DocumentDto.AttachmentLinkDtos?.Select(w => w.AttachmentDto.Reconstitute()).ToList() ?? new List<Attachment>();
+            var items = OtherDocumentItemDtos?.Select(w => w.Reconstitute()).ToList() ?? new List<OtherDocumentItem>();
+            var payments = OtherDocumentPaymentDtos?.Select(w => w.Reconstitute()).ToList() ?? new List<OtherDocumentPayment>();
 
-            return new OtherDocument(Id, DocumentDto.Name, TestName, attachments, Deleted);
+            return new OtherDocument(Id, DocumentDto.Name, TestName, attachments, Deleted, payments, items);
         }
 
         public void Update(OtherDocument entity)
@@ -24,10 +25,22 @@ namespace Infrastructure.DataProvider
                     Id = Id
                 };
             }
-
-            DocumentDto.Update(entity);
+            DocumentDto.UpdateFrom(entity);
             DocumentDto.DocumentType = DocumentType.OtherDocument;
+            OtherDocumentItemDtos = entity.Items.Select(OtherDocumentItemExtension.UpdateItem).ToList();
+            OtherDocumentPaymentDtos = entity.Payments.Select(UpdatePayment).ToList();
             TestName = entity.TestName;
+        }
+
+        private static OtherDocumentPaymentDto UpdatePayment(OtherDocumentPayment payment)
+        {
+            return new OtherDocumentPaymentDto
+            {
+                Id = payment.Id,
+                Deleted = payment.Deleted,
+                OtherDocumentId = payment.OtherDocumentId,
+                Total = payment.Total
+            };
         }
     }
 }

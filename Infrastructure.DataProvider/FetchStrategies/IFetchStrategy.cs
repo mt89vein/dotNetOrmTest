@@ -8,8 +8,8 @@ namespace Infrastructure.DataProvider
     {
         IEnumerable<string> IncludePaths { get; }
 
-        IFetchStrategy<T> Include(Expression<Func<T, object>> path);
+        IFetchStrategy<T> Add(Expression<Func<T, object>> path);
 
-        IFetchStrategy<T> Include(string path);
+        IFetchStrategy<T> Add(string path);
     }
 }

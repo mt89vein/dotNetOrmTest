@@ -5,11 +5,11 @@ using Domain.FetchStrategies;
 using Domain.Services;
 using Infrastructure.DataProvider.Caching;
 using Infrastructure.DomainBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Services
 {
-    public class OtherDocumentItemService : BaseService<OtherDocumentItem, OtherDocumentItemDto,
-        OtherDocumentItemWorkItemStrategy, ISpecification<OtherDocumentItemDto>>, IOtherDocumentItemService
+    public class OtherDocumentItemService : BaseService<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>>, IOtherDocumentItemService
     {
         public OtherDocumentItemService(
             IRepository<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>> repository,
@@ -21,27 +21,39 @@ namespace Infrastructure.DataProvider.Services
         public IReadOnlyCollection<OtherDocumentItem> GetByOtherDocumentId(int otherDocumentId,
             OtherDocumentItemWorkItemStrategy otherDocumentItemWorkItemStrategy)
         {
-            var spec = ToSpecification(otherDocumentItemWorkItemStrategy)
-                .And(new Specification<OtherDocumentItemDto>(w => w.OtherDocumentId == otherDocumentId));
+            var spec = new Specification<OtherDocumentItemDto>(w => w.OtherDocumentId == otherDocumentId).And(
+                ToSpecification(otherDocumentItemWorkItemStrategy));
 
             return Repository.GetBySpecification(specification: spec).Select(w => w.Reconstitute()).ToList();
         }
 
-        protected override ISpecification<OtherDocumentItemDto> ToSpecification(
-            OtherDocumentItemWorkItemStrategy otherDocumentItemWorkItemStrategy)
+        protected override ISpecification<OtherDocumentItemDto> ToSpecification(IWorkItemStrategy workItemStrategy)
         {
             var specification = new Specification<OtherDocumentItemDto>();
 
-            if (otherDocumentItemWorkItemStrategy == null)
+            if (!(workItemStrategy is OtherDocumentItemWorkItemStrategy strategy))
             {
                 return specification;
             }
 
-            if (!otherDocumentItemWorkItemStrategy.WithDeleted)
+            if (strategy.WithNestedItems)
             {
-                specification.Predicate = OnlyNotDeletedSpecification.Predicate;
+                if (strategy.NestedItemWorkItemStrategy.WithOneMoreNestedItems)
+                {
+                    specification.FetchStrategy.Add(w => w.Include(x => x.NestedItemDtos)
+                        .ThenInclude(x => x.OneMoreNestedItemDtos));
+                }
+                else
+                {
+                    specification.FetchStrategy.Add(w => w.Include(x => x.NestedItemDtos));
+                }
             }
 
+            if (!strategy.WithDeleted)
+            {
+                specification.And(OnlyNotDeletedSpecification);
+            }
+            
             return specification;
         }
     }

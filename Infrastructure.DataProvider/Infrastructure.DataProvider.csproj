@@ -24,6 +24,9 @@
     <Compile Remove="Migrations\20180724063504_Initial.cs" />
     <Compile Remove="Migrations\20180725115704_Initial.cs" />
     <Compile Remove="Migrations\20180725115802_Initial.cs" />
+    <Compile Remove="Migrations\20180805184659_AddNestedItems.cs" />
+    <Compile Remove="Migrations\20180805184917_AddNestedItems.cs" />
+    <Compile Remove="Migrations\20180805185143_AddNestedItems.cs" />
   </ItemGroup>
 
   <ItemGroup>

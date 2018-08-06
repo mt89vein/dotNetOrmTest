@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Domain;
 using Infrastructure.DomainBase;
 using Microsoft.EntityFrameworkCore;
 
@@ -123,7 +124,7 @@ namespace Infrastructure.DataProvider
                 .AsReadOnly();
         }
 
-        public override void Update(TDto entity)
+        public override void Update(TDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
         {
             var entry = Context.Entry(entity);
 
@@ -131,7 +132,7 @@ namespace Infrastructure.DataProvider
             {
                 if (entry.State == EntityState.Detached)
                 {
-                    var attachedEntity = Context.Set<TDto>().Find(entity.Id);
+                    var attachedEntity = DbSetTable.Find(entity.Id);
                     if (attachedEntity != null)
                     {
                         Context.Entry(attachedEntity).CurrentValues.SetValues(entity);

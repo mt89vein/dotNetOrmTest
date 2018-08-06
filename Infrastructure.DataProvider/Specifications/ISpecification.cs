@@ -1,14 +1,16 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Infrastructure.DomainBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider
 {
-    public interface ISpecification<T>
+    public interface ISpecification<T> where T : class
     {
         Expression<Func<T, bool>> Predicate { get; }
 
-        IFetchStrategy<T> FetchStrategy { get; set; }
+        IFetchStrategy<DbSet<T>> FetchStrategy { get; set; }
 
         T SatisfyingEntityFrom(IQueryable<T> query);
 

@@ -4,15 +4,12 @@ namespace Domain
 {
 	public class Attachment : Entity
 	{
-		public Attachment(string path, int id, int? documentId)
-			: base(id)
+		public Attachment(string path, int id, bool deleted)
+			: base(id, deleted)
 		{
 			Path = path;
-			DocumentId = documentId;
 		}
 
 		public string Path { get; }
-
-		public int? DocumentId { get; }
 	}
 }
