@@ -7,12 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Services
 {
-    public class OtherDocumentService : BaseService<OtherDocument, OtherDocumentDto, ISpecification<OtherDocumentDto>>, IOtherDocumentService
+    public class OtherDocumentService : BaseService<OtherDocument, OtherDocumentDto, ISpecification<OtherDocumentDto>>,
+        IOtherDocumentService
     {
         public OtherDocumentService(
             IRepository<OtherDocument, OtherDocumentDto, ISpecification<OtherDocumentDto>> repository,
-            ApplicationContext context, IRedisService<OtherDocumentDto, OtherDocument> redisService)
-            : base(repository, context, redisService)
+            ApplicationContext context,
+            ICacheService<OtherDocumentDto, OtherDocument> cacheService)
+            : base(repository, context, cacheService)
         {
         }
 
@@ -29,30 +31,26 @@ namespace Infrastructure.DataProvider.Services
             {
                 specification.FetchStrategy.Add(
                     w => w.Include(x => x.DocumentDto)
-                            .ThenInclude(x => x.AttachmentLinkDtos)
-                                .ThenInclude(x => x.AttachmentDto)
+                        .ThenInclude(x => x.AttachmentLinkDtos)
+                        .ThenInclude(x => x.AttachmentDto)
                 );
             }
 
             if (strategy.WithItems)
             {
-                if (strategy.OtherDocumentItemWorkItemStrategy.WithNestedItems)
+                if (strategy.OtherDocumentItemWorkItemStrategy.NestedItemWorkItemStrategy.WithOneMoreNestedItems)
                 {
-                    if (strategy.OtherDocumentItemWorkItemStrategy.NestedItemWorkItemStrategy
-                        .WithOneMoreNestedItems)
-                    {
-                        specification.FetchStrategy.Add(
-                            w => w.Include(x => x.OtherDocumentItemDtos)
-                                        .ThenInclude(x => x.NestedItemDtos)
-                                            .ThenInclude(x => x.OneMoreNestedItemDtos)
-                        );
-                    }
-                    else
-                    {
-                        specification.FetchStrategy.Add(
-                            w => w.Include(x => x.OtherDocumentItemDtos)
-                                      .ThenInclude(x => x.NestedItemDtos));
-                    }
+                    specification.FetchStrategy.Add(
+                        w => w.Include(x => x.OtherDocumentItemDtos)
+                            .ThenInclude(x => x.NestedItemDtos)
+                            .ThenInclude(x => x.OneMoreNestedItemDtos)
+                    );
+                }
+                else if (strategy.OtherDocumentItemWorkItemStrategy.WithNestedItems)
+                {
+                    specification.FetchStrategy.Add(
+                        w => w.Include(x => x.OtherDocumentItemDtos)
+                            .ThenInclude(x => x.NestedItemDtos));
                 }
                 else
                 {

@@ -7,10 +7,12 @@ namespace Infrastructure.DataProvider.Mappings
     {
         public void Configure(EntityTypeBuilder<OneMoreNestedItemDto> builder)
         {
-            builder.Property(w => w.Id);
-            builder.HasKey(w => w.Id);
-            builder.HasOne(w => w.NestedItemDto).WithMany(w => w.OneMoreNestedItemDtos)
-                .HasForeignKey(w => w.NestedItemId);
+            builder.Property(p => p.Id).UseSqlServerIdentityColumn();
+            builder.HasKey(w => w.Id).ForSqlServerIsClustered();
+            builder.HasIndex(e => e.NestedItemId);
+            builder.HasOne(d => d.NestedItemDto)
+                .WithMany(p => p.OneMoreNestedItemDtos)
+                .HasForeignKey(d => d.NestedItemId);
             builder.ToTable("OneMoreNestedItem");
         }
     }

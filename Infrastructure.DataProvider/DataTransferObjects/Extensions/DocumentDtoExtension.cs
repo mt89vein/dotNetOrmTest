@@ -59,6 +59,7 @@ namespace Infrastructure.DataProvider
                     });
                 }
             }
+
             dto.AttachmentLinkDtos = newAttachmentLinks;
             dto.Name = entity.Name;
             dto.Deleted = entity.Deleted;

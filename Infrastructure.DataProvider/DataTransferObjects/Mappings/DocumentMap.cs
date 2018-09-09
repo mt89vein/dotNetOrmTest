@@ -7,11 +7,16 @@ namespace Infrastructure.DataProvider.Mappings
     {
         public void Configure(EntityTypeBuilder<DocumentDto> builder)
         {
-            builder.Property(w => w.Id).ValueGeneratedOnAdd().UseSqlServerIdentityColumn();
-            builder.HasOne(w => w.OtherDocumentDto).WithOne(w => w.DocumentDto)
-                .HasForeignKey<OtherDocumentDto>(w => w.Id).OnDelete(DeleteBehavior.Cascade);
-            builder.HasMany(w => w.AttachmentLinkDtos).WithOne(w => w.DocumentDto)
-                .HasForeignKey(w => w.DocumentId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasKey(w => w.Id).ForSqlServerIsClustered();
+            builder.Property(w => w.Id).UseSqlServerIdentityColumn();
+            builder.HasOne(w => w.OtherDocumentDto)
+                .WithOne(w => w.DocumentDto)
+                .HasForeignKey<OtherDocumentDto>(w => w.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(w => w.AttachmentLinkDtos)
+                .WithOne(w => w.DocumentDto)
+                .HasForeignKey(w => w.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("Document");
         }
     }

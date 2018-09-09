@@ -11,13 +11,10 @@ namespace Infrastructure.DataProvider
     /// <typeparam name="TDto">Тип сущности</typeparam>
     /// <typeparam name="TSpecification"></typeparam>
     /// <typeparam name="TDomainEntity"></typeparam>
-    public abstract class
-        Repository<TDomainEntity, TDto, TSpecification> : IRepository<TDomainEntity, TDto, TSpecification>
+    public abstract class Repository<TDomainEntity, TDto, TSpecification> : IRepository<TDomainEntity, TDto, TSpecification>
         where TDto : class, IDataTransferObject<TDomainEntity>
         where TSpecification : ISpecification<TDto>
     {
-        public abstract IQueryable<TDto> Table(bool readOnly = false);
-
         /// <summary>
         /// Получить экземпляр сущности по идентификатору
         /// </summary>
@@ -39,7 +36,7 @@ namespace Infrastructure.DataProvider
         /// Получить все экземпляры сущности
         /// </summary>
         /// <returns>Список экземпляров сущности</returns>
-        public abstract IReadOnlyCollection<TDto> GetAll(TSpecification specification = default(TSpecification));
+        public abstract IReadOnlyCollection<TDto> Get(TSpecification specification = default(TSpecification));
 
         /// <summary>
         /// Получить сущности по спецификации
@@ -49,12 +46,6 @@ namespace Infrastructure.DataProvider
         /// <returns></returns>
         public abstract IEnumerable<TDto> GetBySpecification(bool readOnly = true,
             TSpecification specification = default(TSpecification));
-
-        /// <summary>
-        /// Добавить сущность
-        /// </summary>
-        /// <param name="entity"></param>
-        public abstract void Add(TDto entity);
 
         /// <summary>
         /// Удалить по идентификатору
@@ -77,10 +68,10 @@ namespace Infrastructure.DataProvider
         public abstract void Remove(int[] ids);
 
         /// <summary>
-        /// Обновить сущность
+        /// Сохранить сущность
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="updateWorkItemStrategy"></param>
-        public abstract void Update(TDto entity, IWorkItemStrategy updateWorkItemStrategy = null);
+        public abstract void Save(TDto entity, IWorkItemStrategy updateWorkItemStrategy = null);
     }
 }

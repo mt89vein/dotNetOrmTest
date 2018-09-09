@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using ServiceStack.Redis;
+using WebApp.Extensions;
 
 namespace WebApp
 {
@@ -26,13 +27,18 @@ namespace WebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(
-                w => w.UseSqlServer(Configuration.GetConnectionString("Default")));
+                w =>
+                {
+                    w.UseSqlServer(Configuration.GetConnectionString("Default"));
+                    w.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                });
             services.AddMvc()
                 .AddJsonOptions(
                     options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 );
-            RegisterRepositoriesAndServices(ref services);
             services.AddCors();
+            services.AddRepositoriesAndServices();
+            services.AddTransactionPerRequestFilter();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,29 +56,7 @@ namespace WebApp
             app.UseMvc(routes => routes.MapRoute(
                 "api-default",
                 "api/{controller=Home}/{action=Index}/{id?}"));
-        }
 
-        private static void RegisterRepositoriesAndServices(ref IServiceCollection serviceCollection)
-        {
-            var repositoryAssembly = typeof(ApplicationContext).Assembly;
-
-            foreach (var type in repositoryAssembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract)
-                .Where(t => t.Namespace == "Infrastructure.DataProvider.Repositories" ||
-                            t.Namespace == "Infrastructure.DataProvider.Services" ||
-                            t.Namespace == "Integration.Services"))
-            {
-                foreach (var i in type.GetInterfaces())
-                {
-                    serviceCollection.AddScoped(
-                        i.IsGenericType
-                            ? i.GetGenericTypeDefinition().MakeGenericType(i.GetGenericArguments())
-                            : i,
-                        type);
-                }
-            }
-
-            serviceCollection.AddScoped(typeof(IRedisService <,>), typeof(RedisService<,>));
         }
     }
 }

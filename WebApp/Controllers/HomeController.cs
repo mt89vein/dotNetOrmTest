@@ -1,4 +1,6 @@
-﻿using Domain.FetchStrategies;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Domain.FetchStrategies;
 using Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.ViewModels;
@@ -27,9 +29,16 @@ namespace WebApp.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetDocument(int id)
+        {
+            var document = _documentService.Get(new DocumentWorkItemStrategy(withAttachments: false));
+            return Ok(document);
+        }
+
+        [HttpGet]
         public IActionResult GetDocuments()
         {
-            var documents = _documentService.Get();
+            var documents = _documentService.Get(new DocumentWorkItemStrategy(withAttachments: false));
             return Ok(documents);
         }
 
@@ -42,18 +51,93 @@ namespace WebApp.Controllers
             return Ok(documents);
         }
 
-        [HttpPost]
-        public IActionResult UpdateOtherDocument(int id, OtherDocumentEditViewModel viewModel)
+        private static void MakeUserEdit(ref OtherDocumentEditViewModel otherDocument)
         {
-            _otherDocumentService.Update(viewModel.GetModel());
+            otherDocument.Name = "New Document Name";
+            foreach (var payment in otherDocument.Payments)
+            {
+                payment.Total = "500$";
+            }
+            foreach (var item in otherDocument.Items)
+            {
+                item.Name = "new item name, oldName:" + item.Name;
+
+                var itemToDelete = item.NestedItems.FirstOrDefault(w => w.Id != default(int));
+                item.NestedItems.Remove(itemToDelete);
+            }
+            otherDocument.Items.Add(new OtherDocumentItemEditViewModel
+            {
+                Name = "new item created in make user edit",
+                NestedItems = new List<NestedItemEditViewModel>
+                {
+                    new NestedItemEditViewModel
+                    {
+                        NestedItemName = "new nested item name 1",
+                        OneMoreNestedItems = new List<OneMoreNesteItemEditViewModel>
+                        {
+                            new OneMoreNesteItemEditViewModel
+                            {
+                                OneMoreNestedItemName = "one more nested item name 1"
+                            },
+                            new OneMoreNesteItemEditViewModel
+                            {
+                                OneMoreNestedItemName = "ss 2"
+                            },
+                        },
+                    },
+                    new NestedItemEditViewModel
+                    {
+                        NestedItemName = "new nested item name 2",
+                        OneMoreNestedItems = new List<OneMoreNesteItemEditViewModel>
+                        {
+                            new OneMoreNesteItemEditViewModel
+                            {
+                                OneMoreNestedItemName = "one more nested item name 3"
+                            },
+                            new OneMoreNesteItemEditViewModel
+                            {
+                                OneMoreNestedItemName = "ss 4"
+                            },
+                        },
+                    }
+                }
+            });
+            otherDocument.Payments.Add(new OtherDocumentPaymentEditViewModel
+            {
+                Total = "100500 in make user edit"
+            });
+        }
+
+        [HttpGet]
+        public IActionResult UpdateOtherDocument(int id)
+        {
+            var strategy = new OtherDocumentWorkItemStrategy(withDeleted:false, withAttachments: true, withPayments: false, withItems: true, cacheResult:false,
+                otherDocumentItemWorkItemStrategy: new OtherDocumentItemWorkItemStrategy(true, new NestedItemWorkItemStrategy()));
+
+            var otherDocument = _otherDocumentService.Get(id, strategy);
+            var viewModel = new OtherDocumentEditViewModel(otherDocument);
+
+            MakeUserEdit(ref viewModel);
+
+            _otherDocumentService.Save(viewModel.GetModel(), strategy);
 
             return Ok();
         }
 
         [HttpPost]
+        public IActionResult UpdateOtherDocument(int id, OtherDocumentEditViewModel viewModel)
+        {
+            _otherDocumentService.Save(viewModel.GetModel() /* 
+                Сюда нужно передать стратегию обновления, так как мы не знаем как именно данные запрашивались,
+                судя по всему он будет храниться во viewModel и отдаваться клиенту и возвращаться, либо формировать основываясь на бизнес логике */);
+            var updatedOtherDocument = _otherDocumentService.Get(id);
+            return Ok(updatedOtherDocument);
+        }
+
+        [HttpPost]
         public IActionResult InsertOtherDocument(int id, OtherDocumentEditViewModel viewModel)
         {
-            _otherDocumentService.Insert(viewModel.GetModel());
+            _otherDocumentService.Save(viewModel.GetModel());
 
             return Ok();
         }
@@ -64,7 +148,6 @@ namespace WebApp.Controllers
             bool attachments = true,
             bool payments = true,
             bool items = true,
-            bool readOnly = true,
             bool cacheResult = true,
             bool deleted = false,
             bool withNestedItems = true,
@@ -72,13 +155,13 @@ namespace WebApp.Controllers
         )
         {
             var nestedItemWorkItemStrategy =
-                new NestedItemWorkItemStrategy(withOneMoreNestedItems, deleted, readOnly, cacheResult);
-            var otherDocumentItemWorkItemStrategy = new OtherDocumentItemWorkItemStrategy(withNestedItems,
-                nestedItemWorkItemStrategy, deleted, readOnly, cacheResult);
-            var otherDocumentPaymentWorkItemStrategy =
-                new OtherDocumentPaymentWorkItemStrategy(deleted, readOnly, cacheResult);
-            var strategy = new OtherDocumentWorkItemStrategy(deleted, attachments, payments, items, readOnly,
-                cacheResult, otherDocumentItemWorkItemStrategy, otherDocumentPaymentWorkItemStrategy);
+                new NestedItemWorkItemStrategy(withOneMoreNestedItems, deleted, cacheResult);
+            var otherDocumentItemWorkItemStrategy =
+                new OtherDocumentItemWorkItemStrategy(withNestedItems, nestedItemWorkItemStrategy, deleted,
+                    cacheResult);
+            var otherDocumentPaymentWorkItemStrategy = new OtherDocumentPaymentWorkItemStrategy(deleted, cacheResult);
+            var strategy = new OtherDocumentWorkItemStrategy(deleted, attachments, payments, items, cacheResult,
+                otherDocumentItemWorkItemStrategy, otherDocumentPaymentWorkItemStrategy);
 
             var document = _otherDocumentService.Get(id, strategy);
 

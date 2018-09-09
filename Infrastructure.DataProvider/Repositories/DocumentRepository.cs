@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class DocumentRepository : LinqRepository<Document, DocumentDto, ISpecification<DocumentDto>>,
+    public class DocumentRepository : EfRepository<Document, DocumentDto, ISpecification<DocumentDto>>,
         IDocumentRepository
     {
         public DocumentRepository(ApplicationContext context) : base(context)
         {
         }
 
-        public override void Update(DocumentDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
+        public override void Save(DocumentDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
         {
             if (!(updateWorkItemStrategy is DocumentWorkItemStrategy documentWorkItemStrategy))
             {
-                base.Update(entity);
+                base.Save(entity);
                 return;
             }
 

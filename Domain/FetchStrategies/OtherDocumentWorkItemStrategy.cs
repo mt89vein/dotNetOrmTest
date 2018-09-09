@@ -9,12 +9,11 @@ namespace Domain.FetchStrategies
             bool withAttachments = true,
             bool withPayments = true,
             bool withItems = true,
-            bool readOnly = true,
             bool cacheResult = false,
             OtherDocumentItemWorkItemStrategy otherDocumentItemWorkItemStrategy = null,
             OtherDocumentPaymentWorkItemStrategy otherDocumentItemWorkPaymentStrategy = null
         )
-            : base(withDeleted, withAttachments, readOnly, cacheResult)
+            : base(withDeleted, withAttachments, cacheResult)
         {
             WithPayments = withPayments;
             WithItems = withItems;

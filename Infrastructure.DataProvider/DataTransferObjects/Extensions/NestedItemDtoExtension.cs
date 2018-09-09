@@ -18,13 +18,7 @@ namespace Infrastructure.DataProvider
             Deleted = entity.Deleted;
             Id = entity.Id;
             OtherDocumentItemId = entity.OtherDocumentItemId;
-            OneMoreNestedItemDtos = entity.OneMoreNestedItems.Select(w => new OneMoreNestedItemDto
-            {
-                Id = w.Id,
-                Deleted = w.Deleted,
-                NestedItemId = w.NestedItemId,
-                OneMoreNestedItemName = w.OneMoreNestedItemName
-            }).ToList();
+            OneMoreNestedItemDtos = entity.OneMoreNestedItems.Select(OtherDocumentItemExtension.UpdateOneMoreNestedItem).ToList();
         }
     }
 }

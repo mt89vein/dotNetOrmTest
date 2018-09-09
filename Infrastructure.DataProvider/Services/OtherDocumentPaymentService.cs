@@ -13,8 +13,8 @@ namespace Infrastructure.DataProvider.Services
         public OtherDocumentPaymentService(
             IRepository<OtherDocumentPayment, OtherDocumentPaymentDto, ISpecification<OtherDocumentPaymentDto>>
                 repository, ApplicationContext context,
-            IRedisService<OtherDocumentPaymentDto, OtherDocumentPayment> redisService) :
-            base(repository, context, redisService)
+            ICacheService<OtherDocumentPaymentDto, OtherDocumentPayment> cacheService) :
+            base(repository, context, cacheService)
         {
         }
 

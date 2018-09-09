@@ -14,7 +14,7 @@ namespace Infrastructure.DataProvider
                 Deleted = nestedItem.Deleted,
                 NestedItemName = nestedItem.NestedItemName,
                 OtherDocumentItemId = nestedItem.OtherDocumentItemId,
-                OneMoreNestedItemDtos = nestedItem.OneMoreNestedItems.Select(UpdateOneMoreNestedItem).ToList<OneMoreNestedItemDto>()
+                OneMoreNestedItemDtos = nestedItem.OneMoreNestedItems.Select(UpdateOneMoreNestedItem).ToList()
             };
         }
 
@@ -37,7 +37,7 @@ namespace Infrastructure.DataProvider
                 Name = item.Name,
                 Deleted = item.Deleted,
                 OtherDocumentId = item.OtherDocumentId,
-                NestedItemDtos = item.NestedItems.Select(UpdateNestedItem).ToList<NestedItemDto>()
+                NestedItemDtos = item.NestedItems.Select(UpdateNestedItem).ToList()
             };
         }
     }

@@ -7,10 +7,12 @@ namespace Infrastructure.DataProvider.Mappings
     {
         public void Configure(EntityTypeBuilder<OtherDocumentItemDto> builder)
         {
-            builder.Property(w => w.Id);
-            builder.HasKey(w => w.Id);
-            builder.HasOne(w => w.OtherDocumentDto).WithMany(w => w.OtherDocumentItemDtos)
-                .HasForeignKey(w => w.OtherDocumentId);
+            builder.Property(p => p.Id).UseSqlServerIdentityColumn();
+            builder.HasKey(w => w.Id).ForSqlServerIsClustered();
+            builder.HasIndex(e => e.OtherDocumentId);
+            builder.HasOne(d => d.OtherDocumentDto)
+                .WithMany(p => p.OtherDocumentItemDtos)
+                .HasForeignKey(d => d.OtherDocumentId);
             builder.ToTable("OtherDocumentItem");
         }
     }

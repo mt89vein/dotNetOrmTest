@@ -15,87 +15,68 @@ namespace Infrastructure.DataProvider
     {
         protected readonly ApplicationContext Context;
 
-        protected readonly IRedisService<TDto, TDomainEntity> RedisService;
+        protected readonly ICacheService<TDto, TDomainEntity> CacheService;
 
         protected readonly IRepository<TDomainEntity, TDto, TSpecification> Repository;
 
         protected BaseService(IRepository<TDomainEntity, TDto, TSpecification> repository, ApplicationContext context,
-            IRedisService<TDto, TDomainEntity> redisService)
+            ICacheService<TDto, TDomainEntity> cacheService)
         {
             Repository = repository;
             Context = context;
-            RedisService = redisService;
+            CacheService = cacheService;
         }
 
         protected static ISpecification<TDto> OnlyNotDeletedSpecification =>
             new Specification<TDto>(w => w.Deleted == false);
 
-        public virtual void Insert(TDomainEntity entity)
+        public virtual void Save(TDomainEntity entity, IWorkItemStrategy workItemStrategy = null)
         {
-            var dto = new TDto();
-            dto.Update(entity);
-            Repository.Add(dto);
-        }
+            var existingEntity = Context.Find<TDto>(entity.Id);
 
-        public void Insert(IEnumerable<TDomainEntity> entities)
-        {
-            entities.ToList().ForEach(Insert);
-        }
-
-        public virtual void Update(TDomainEntity entity, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
-        {
-            var dto = new TDto();
-            dto.Update(entity);
-            Repository.Update(dto, workItemStrategy);
-        }
-
-        public virtual void Update(IEnumerable<TDomainEntity> entities, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
-        {
-            entities.ToList().ForEach(w => Update(w, workItemStrategy));
-        }
-
-        public virtual void Delete(TDomainEntity entity)
-        {
-            if (entity != null)
+            if (existingEntity != null)
             {
-                Delete(entity.Id);
+                existingEntity.Update(entity);
+                Context.Update(existingEntity);
+                Repository.Save(existingEntity, workItemStrategy);
+            }
+            else
+            {
+                var dto = new TDto();
+                dto.Update(entity);
+                Context.Add(dto);
+                Repository.Save(dto);
             }
         }
 
-        public virtual void Delete(int id)
+        public virtual void Remove(TDomainEntity entity)
+        {
+            if (entity != null)
+            {
+                Remove(entity.Id);
+            }
+        }
+
+        public virtual void Remove(int id)
         {
             Repository.Remove(id);
         }
 
-        public virtual void Delete(IEnumerable<TDomainEntity> entities)
-        {
-            Delete(entities.Select(w => w.Id).ToArray());
-        }
 
-        public virtual void Delete(int[] ids)
-        {
-            if (ids.Length > 0)
-            {
-                Repository.Remove(ids);
-            }
-        }
-
-        public TDomainEntity Get(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
+        public virtual TDomainEntity Get(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
                 return Repository.Get(id).Reconstitute();
             }
 
-            if (!workItemStrategy.CacheResult)
-            {
-                return Repository.Get(id, ToSpecification(workItemStrategy)).Reconstitute();
-            }
-
-            return GetCached(id, workItemStrategy);
+            return !workItemStrategy.CacheResult
+                ? Repository.Get(id, ToSpecification(workItemStrategy)).Reconstitute()
+                : GetCached(id, workItemStrategy).Reconstitute();
         }
 
-        public IReadOnlyCollection<TDomainEntity> Get(IEnumerable<int> ids, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
+        public virtual IReadOnlyCollection<TDomainEntity> Get(IEnumerable<int> ids,
+            IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
@@ -104,25 +85,30 @@ namespace Infrastructure.DataProvider
 
             var idsList = ids.ToList();
 
+            if (idsList.Count == 0)
+            {
+                return new List<TDomainEntity>();
+            }
+
             if (!workItemStrategy.CacheResult)
             {
                 return Repository.Get(idsList, ToSpecification(workItemStrategy)).Select(w => w.Reconstitute())
                     .ToList();
             }
 
-            return GetCached(idsList, workItemStrategy);
+            return GetCached(idsList, workItemStrategy).Select(w => w.Reconstitute()).ToList();
         }
 
-        public IReadOnlyCollection<TDomainEntity> Get(IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
+        public virtual IReadOnlyCollection<TDomainEntity> Get(IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy == null)
             {
-                return Repository.GetAll().Select(w => w.Reconstitute()).ToList();
+                return Repository.Get().Select(w => w.Reconstitute()).ToList();
             }
 
             if (!workItemStrategy.CacheResult)
             {
-                return Repository.GetAll(ToSpecification(workItemStrategy)).Select(w => w.Reconstitute())
+                return Repository.Get(ToSpecification(workItemStrategy)).Select(w => w.Reconstitute())
                     .ToList();
             }
 
@@ -137,23 +123,23 @@ namespace Infrastructure.DataProvider
         /// <param name="id"></param>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        private TDomainEntity GetCached(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
+        private TDto GetCached(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy != null)
             {
-                return Repository.Get(id, ToSpecification(workItemStrategy)).Reconstitute();
+                return Repository.Get(id, ToSpecification(workItemStrategy));
             }
 
-            var entity = RedisService.Get(id);
+            var entity = CacheService.Get(id);
             if (entity != null)
             {
-                return entity.Reconstitute();
+                return entity;
             }
 
             entity = Repository.Get(id);
-            RedisService.Set(entity);
+            CacheService.Set(entity);
 
-            return entity.Reconstitute();
+            return entity;
         }
 
         /// <summary>
@@ -162,25 +148,25 @@ namespace Infrastructure.DataProvider
         /// <param name="ids"></param>
         /// <param name="workItemStrategy"></param>
         /// <returns></returns>
-        private IReadOnlyCollection<TDomainEntity> GetCached(ICollection<int> ids,
+        private IReadOnlyCollection<TDto> GetCached(ICollection<int> ids,
             IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy))
         {
             if (workItemStrategy != null)
             {
-                return Repository.Get(ids, ToSpecification(workItemStrategy)).Select(w => w.Reconstitute()).ToList();
+                return Repository.Get(ids, ToSpecification(workItemStrategy)).ToList();
             }
 
-            var entityList = RedisService.Get(ids.ToArray());
+            var entityList = CacheService.Get(ids.ToArray());
 
             if (entityList?.Count == ids.Count)
             {
-                return entityList.Select(w => w.Reconstitute()).ToList();
+                return entityList.ToList();
             }
 
             entityList = Repository.Get(ids).ToList();
-            RedisService.Set(entityList);
+            CacheService.Set(entityList);
 
-            return entityList.Select(w => w.Reconstitute()).ToList();
+            return entityList.ToList();
         }
     }
 }

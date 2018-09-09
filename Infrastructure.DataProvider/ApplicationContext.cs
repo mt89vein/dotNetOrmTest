@@ -1,9 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Infrastructure.DataProvider.Mappings;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +8,22 @@ namespace Infrastructure.DataProvider
 {
     public class ApplicationContext : DbContext
     {
+        public DbSet<DocumentDto> DocumentDtos { get; set; }
+
+        public DbSet<AttachmentDto> AttachmentDtos { get; set; }
+
+        public DbSet<AttachmentLinkDto> AttachmentLinkDtos { get; set; }
+
+        public DbSet<OtherDocumentDto> OtherDocumentDtos { get; set; }
+
+        public DbSet<OtherDocumentItemDto> OtherDocumentItemDto { get; set; }
+
+        public DbSet<OtherDocumentPaymentDto> OtherDocumentPaymentDto { get; set; }
+
+        public DbSet<OneMoreNestedItemDto> OneMoreNestedItemDtos { get; set; }
+
+        public DbSet<NestedItemDto> NestedItemDtos { get; set; }
+        
         public ApplicationContext(DbContextOptions<ApplicationContext> contextOptions)
             : base(contextOptions)
         {
@@ -96,7 +109,7 @@ namespace Infrastructure.DataProvider
                 },
                 new AttachmentLinkDto
                 {
-                    Id =  5,
+                    Id = 5,
                     AttachmentId = 2,
                     DocumentId = 3,
                 }
@@ -312,7 +325,7 @@ namespace Infrastructure.DataProvider
                     OtherDocumentItemId = 8
                 }
             );
-
+            
             builder.Entity<OneMoreNestedItemDto>().HasData(
                 new OneMoreNestedItemDto
                 {
@@ -426,67 +439,6 @@ namespace Infrastructure.DataProvider
 
             Seed(builder);
             base.OnModelCreating(builder);
-        }
-
-        public new bool SaveChanges()
-        {
-            const int retries = 3;
-            var success = false;
-            Validate();
-            for (var i = 0; i < retries; i++)
-                using (var transaction = Database.BeginTransaction(IsolationLevel.ReadCommitted))
-                {
-                    try
-                    {
-                        base.SaveChanges(false);
-                        transaction.Commit();
-                        success = true;
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        success = false;
-                    }
-                }
-
-            if (!success)
-            {
-                return false;
-            }
-
-            ChangeTracker.AcceptAllChanges();
-            return true;
-        }
-
-        public new async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            const int retries = 3;
-            var success = false;
-            Validate();
-            for (var i = 0; i < retries; i++)
-                using (var transaction = Database.BeginTransaction())
-                {
-                    try
-                    {
-                        await base.SaveChangesAsync(false, cancellationToken);
-                        transaction.Commit();
-                        success = true;
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        success = false;
-                    }
-                }
-
-            if (!success)
-            {
-                return false;
-            }
-
-            ChangeTracker.AcceptAllChanges();
-            return true;
         }
 
         /// <summary>

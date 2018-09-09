@@ -6,15 +6,15 @@ namespace Infrastructure.DataProvider
     {
         public OtherDocumentDto()
         {
-            OtherDocumentItemDtos = new HashSet<OtherDocumentItemDto>();
-            OtherDocumentPaymentDtos = new HashSet<OtherDocumentPaymentDto>();
+            OtherDocumentItemDtos = new List<OtherDocumentItemDto>();
+            OtherDocumentPaymentDtos = new List<OtherDocumentPaymentDto>();
         }
 
         public string TestName { get; set; }
 
-        public ICollection<OtherDocumentItemDto> OtherDocumentItemDtos { get; set; }
+        public List<OtherDocumentItemDto> OtherDocumentItemDtos { get; set; }
 
-        public ICollection<OtherDocumentPaymentDto> OtherDocumentPaymentDtos { get; set; }
+        public List<OtherDocumentPaymentDto> OtherDocumentPaymentDtos { get; set; }
 
         public DocumentDto DocumentDto { get; set; }
 

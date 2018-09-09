@@ -1,76 +1,74 @@
 ﻿using System;
+using System.Linq;
 using Domain;
 using Domain.FetchStrategies;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class OtherDocumentRepository : LinqRepository<OtherDocument, OtherDocumentDto,
-            ISpecification<OtherDocumentDto>>,
-        IOtherDocumentRepository
+    public class OtherDocumentRepository : EfRepository<OtherDocument, OtherDocumentDto,
+        ISpecification<OtherDocumentDto>>, IOtherDocumentRepository
     {
         public OtherDocumentRepository(ApplicationContext context)
             : base(context)
         {
         }
 
-        public override void Update(OtherDocumentDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
+        public override void Save(OtherDocumentDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
         {
             if (!(updateWorkItemStrategy is OtherDocumentWorkItemStrategy otherDocumentWorkItemStrategy))
             {
-                base.Update(entity);
+                base.Save(entity, updateWorkItemStrategy);
                 return;
             }
 
             var entry = Context.Entry(entity);
 
-            try
+            if (entry.IsKeySet)
             {
                 if (entry.State == EntityState.Detached)
                 {
-                    Context.Attach(entity);
+                    throw new Exception("Попытка сохранить сущность, которая не присоединена к контексту");
                 }
-                if (otherDocumentWorkItemStrategy.WithAttachments)
-                {
-                    foreach (var attachmentLinkDto in entity.DocumentDto.AttachmentLinkDtos)
-                    {
-                        Context.Entry(attachmentLinkDto).State = EntityState.Modified;
-                    }
-                }
-                if (otherDocumentWorkItemStrategy.WithPayments)
-                {
-                    foreach (var paymentDto in entity.OtherDocumentPaymentDtos)
-                    {
-                        Context.Entry(paymentDto).State = EntityState.Modified;
-                    }
-                }
-                if (otherDocumentWorkItemStrategy.WithItems)
-                {
-                    foreach (var itemDto in entity.OtherDocumentItemDtos)
-                    {
-                        Context.Entry(itemDto).State = EntityState.Modified;
-                        if (otherDocumentWorkItemStrategy.OtherDocumentItemWorkItemStrategy.WithNestedItems)
-                        {
-                            foreach (var nestedItemDto in itemDto.NestedItemDtos)
-                            {
-                                Context.Entry(nestedItemDto).State = EntityState.Modified;
-
-                                foreach (var oneMoreNestedItemDto in nestedItemDto.OneMoreNestedItemDtos)
-                                {
-                                    Context.Entry(oneMoreNestedItemDto).State = EntityState.Modified;
-                                }
-                            }
-                        }
-                    }
-                }
+                entry.State = EntityState.Modified;
             }
-            catch (Exception)
+            else
             {
-                // ignore and try the default behavior
+                Context.Add(entry);
             }
 
-            // default
-            entry.State = EntityState.Modified;
+            if (!otherDocumentWorkItemStrategy.WithAttachments)
+            {
+                Context.Entry(entity.DocumentDto.AttachmentLinkDtos).State = EntityState.Detached;
+            }
+
+            if (!otherDocumentWorkItemStrategy.WithPayments)
+            {
+                Context.Entry(entity.OtherDocumentPaymentDtos).State = EntityState.Detached;
+            }
+
+
+            if (!otherDocumentWorkItemStrategy.WithItems)
+            {
+                Context.Entry(entity.OtherDocumentItemDtos).State = EntityState.Detached;
+            }
+            if (!otherDocumentWorkItemStrategy.OtherDocumentItemWorkItemStrategy.WithNestedItems)
+            {
+                foreach (var entityOtherDocumentItemDto in entity.OtherDocumentItemDtos)
+                {
+                    Context.Entry(entityOtherDocumentItemDto.NestedItemDtos).State = EntityState.Detached;
+                }
+            }
+            else if (!otherDocumentWorkItemStrategy.OtherDocumentItemWorkItemStrategy.NestedItemWorkItemStrategy
+                .WithOneMoreNestedItems)
+            {
+                foreach (var nestedItemDto in entity.OtherDocumentItemDtos.SelectMany(w => w.NestedItemDtos))
+                {
+                    Context.Entry(nestedItemDto.OneMoreNestedItemDtos).State = EntityState.Unchanged;
+                }
+            }
+
+            Context.SaveChanges();
         }
     }
 }

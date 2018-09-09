@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using Infrastructure.DomainBase;
 using Newtonsoft.Json;
 using StackExchange.Redis;
+using Domain.Services;
 
 namespace Infrastructure.DataProvider.Caching
 {
-    public class RedisService<TDto, TDomainEntity> : IRedisService<TDto, TDomainEntity>
+    public class RedisService<TDto, TDomainEntity> : ICacheService<TDto, TDomainEntity>
         where TDto : IDataTransferObject<TDomainEntity>
         where TDomainEntity : IEntity
     {

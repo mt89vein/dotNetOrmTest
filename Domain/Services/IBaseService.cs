@@ -6,78 +6,50 @@ namespace Domain.Services
     /// <summary>
     /// Базовый интерфейс сервисов.
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    /// <typeparam name="TWorkItemStrategy"></typeparam>
+    /// <typeparam name="TEntity">Сущность</typeparam>
     public interface IBaseService<TEntity>
         where TEntity : Entity
     {
         /// <summary>
         /// Вернет запись по идентификатору.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="workItemStrategy"></param>
+        /// <param name="id">Идентификатор</param>
+        /// <param name="workItemStrategy">Стратегия</param>
         /// <returns></returns>
         TEntity Get(int id, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
+        /// <summary>
+        /// Получить сущности по идентификаторам
+        /// </summary>
+        /// <param name="ids">Список идентификаторов</param>
+        /// <param name="workItemStrategy">Стратегия</param>
+        /// <returns></returns>
         IReadOnlyCollection<TEntity> Get(IEnumerable<int> ids, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Получить все
         /// </summary>
-        /// <param name="workItemStrategy"></param>
+        /// <param name="workItemStrategy">Стратегия</param>
         /// <returns></returns>
         IReadOnlyCollection<TEntity> Get(IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
-        /// Добавление записи.
+        /// Сохранить сущность
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        void Insert(TEntity entity);
-
-        /// <summary>
-        /// Множественное добавление записей.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <returns></returns>
-        void Insert(IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Обновление записи.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="workItemStrategy"></param>
-        void Update(TEntity entity, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
-
-        /// <summary>
-        /// Обновление записей.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="workItemStrategy"></param>
-        void Update(IEnumerable<TEntity> entities, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
+        /// <param name="entity">Сущность</param>
+        /// <param name="workItemStrategy">Стратегия</param>
+        void Save(TEntity entity, IWorkItemStrategy workItemStrategy = default(IWorkItemStrategy));
 
         /// <summary>
         /// Удаление по идентификатору.
         /// </summary>
-        /// <param name="id"></param>
-        void Delete(int id);
+        /// <param name="id">Идентификатор</param>
+        void Remove(int id);
 
         /// <summary>
         /// Удаление записи.
         /// </summary>
-        /// <param name="entity"></param>
-        void Delete(TEntity entity);
-
-        /// <summary>
-        /// Удаление записей.
-        /// </summary>
-        /// <param name="entities"></param>
-        void Delete(IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Удаление записей по идентификаторам
-        /// </summary>
-        /// <param name="ids">Идентификатороы</param>
-        void Delete(int[] ids);
+        /// <param name="entity">Сущность</param>
+        void Remove(TEntity entity);
     }
 }

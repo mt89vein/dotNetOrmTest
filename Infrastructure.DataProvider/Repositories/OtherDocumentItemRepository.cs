@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.DataProvider.Repositories
 {
     public class OtherDocumentItemRepository :
-        LinqRepository<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>>,
+        EfRepository<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>>,
         IOtherDocumentItemRepository
     {
         public OtherDocumentItemRepository(ApplicationContext context) : base(context)
@@ -23,11 +23,11 @@ namespace Infrastructure.DataProvider.Repositories
                 .ToList();
         }
 
-        public override void Update(OtherDocumentItemDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
+        public override void Save(OtherDocumentItemDto entity, IWorkItemStrategy updateWorkItemStrategy = null)
         {
             if (!(updateWorkItemStrategy is OtherDocumentItemWorkItemStrategy otherDocumentItemWorkItemStrategy))
             {
-                base.Update(entity);
+                base.Save(entity);
                 return;
             }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Domain;
 
@@ -37,11 +37,12 @@ namespace WebApp.ViewModels
 
         public string Name { get; set; }
 
-        public ICollection<AttachmentEditViewModel> Attachments { get; set; }
+        public List<AttachmentEditViewModel> Attachments { get; set; }
 
         public OtherDocument GetModel()
         {
-            return new OtherDocument(Id,
+            return new OtherDocument(
+                Id,
                 Name,
                 TestName,
                 Attachments.Select(w => w.GetModel()).ToList(),

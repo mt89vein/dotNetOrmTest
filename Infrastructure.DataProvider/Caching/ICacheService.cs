@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using Infrastructure.DataProvider;
 using Infrastructure.DomainBase;
 
-namespace Infrastructure.DataProvider.Caching
+namespace Domain.Services
 {
     /// <summary>
-    /// Сервис для кэширования в Redis
+    /// Сервис для кэширования
     /// </summary>
     /// <typeparam name="TDto">Объект кэширования</typeparam>
     /// <typeparam name="TDomainEntity">Доменный объект</typeparam>
-    public interface IRedisService<TDto, TDomainEntity>
+    public interface ICacheService<TDto, TDomainEntity>
         where TDto : IDataTransferObject<TDomainEntity>
         where TDomainEntity : IEntity
     {

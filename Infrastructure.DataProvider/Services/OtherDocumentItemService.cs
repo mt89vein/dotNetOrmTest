@@ -13,8 +13,8 @@ namespace Infrastructure.DataProvider.Services
     {
         public OtherDocumentItemService(
             IRepository<OtherDocumentItem, OtherDocumentItemDto, ISpecification<OtherDocumentItemDto>> repository,
-            ApplicationContext context, IRedisService<OtherDocumentItemDto, OtherDocumentItem> redisService) :
-            base(repository, context, redisService)
+            ApplicationContext context, ICacheService<OtherDocumentItemDto, OtherDocumentItem> cacheService) :
+            base(repository, context, cacheService)
         {
         }
 

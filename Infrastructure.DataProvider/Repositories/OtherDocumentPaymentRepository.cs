@@ -4,7 +4,7 @@ using Domain;
 
 namespace Infrastructure.DataProvider.Repositories
 {
-    public class OtherDocumentPaymentRepository : LinqRepository<OtherDocumentPayment, OtherDocumentPaymentDto,
+    public class OtherDocumentPaymentRepository : EfRepository<OtherDocumentPayment, OtherDocumentPaymentDto,
             ISpecification<OtherDocumentPaymentDto>>,
         IOtherDocumentPaymentRepository
     {

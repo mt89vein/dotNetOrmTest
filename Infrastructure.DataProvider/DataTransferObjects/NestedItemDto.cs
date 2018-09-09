@@ -6,7 +6,7 @@ namespace Infrastructure.DataProvider
     {
         public NestedItemDto()
         {
-            OneMoreNestedItemDtos = new HashSet<OneMoreNestedItemDto>();
+            OneMoreNestedItemDtos = new List<OneMoreNestedItemDto>();
         }
 
         public string NestedItemName { get; set; }
@@ -15,7 +15,7 @@ namespace Infrastructure.DataProvider
 
         public OtherDocumentItemDto OtherDocumentItemDto { get; set; }
 
-        public ICollection<OneMoreNestedItemDto> OneMoreNestedItemDtos { get; set; }
+        public List<OneMoreNestedItemDto> OneMoreNestedItemDtos { get; set; }
 
         public bool Deleted { get; set; }
 

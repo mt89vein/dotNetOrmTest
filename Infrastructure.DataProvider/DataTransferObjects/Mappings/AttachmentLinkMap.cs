@@ -7,11 +7,18 @@ namespace Infrastructure.DataProvider.Mappings
     {
         public void Configure(EntityTypeBuilder<AttachmentLinkDto> builder)
         {
-            builder.Property(w => w.Id).ValueGeneratedOnAdd().UseSqlServerIdentityColumn();
-            builder.HasOne(w => w.AttachmentDto).WithMany(w => w.AttachmentLinkDtos)
-                .HasForeignKey(w => w.AttachmentId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(w => w.DocumentDto).WithMany(w => w.AttachmentLinkDtos)
-                .HasForeignKey(w => w.DocumentId).OnDelete(DeleteBehavior.Cascade);
+            builder.Property(p => p.Id).UseSqlServerIdentityColumn();
+            builder.HasKey(w => w.Id).ForSqlServerIsClustered();
+            builder.HasIndex(e => e.AttachmentId);
+            builder.HasIndex(e => e.DocumentId);
+            builder.HasOne(d => d.AttachmentDto)
+                .WithMany(p => p.AttachmentLinkDtos)
+                .HasForeignKey(d => d.AttachmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(d => d.DocumentDto)
+                .WithMany(p => p.AttachmentLinkDtos)
+                .HasForeignKey(d => d.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("AttachmentLink");
         }
     }

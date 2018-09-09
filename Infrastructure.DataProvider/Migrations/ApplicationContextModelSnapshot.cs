@@ -14,7 +14,7 @@ namespace Infrastructure.DataProvider.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
+                .HasAnnotation("ProductVersion", "2.1.2-rtm-30932")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -28,7 +28,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<string>("Path");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("Attachment");
 
@@ -49,7 +50,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<int>("DocumentId");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("AttachmentId");
 
@@ -78,7 +80,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<string>("Name");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("Document");
 
@@ -102,7 +105,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<int>("OtherDocumentItemId");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("OtherDocumentItemId");
 
@@ -133,7 +137,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<string>("OneMoreNestedItemName");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("NestedItemId");
 
@@ -167,7 +172,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<string>("TestName");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("OtherDocument");
 
@@ -191,7 +197,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<int>("OtherDocumentId");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("OtherDocumentId");
 
@@ -221,7 +228,8 @@ namespace Infrastructure.DataProvider.Migrations
 
                     b.Property<string>("Total");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("OtherDocumentId");
 

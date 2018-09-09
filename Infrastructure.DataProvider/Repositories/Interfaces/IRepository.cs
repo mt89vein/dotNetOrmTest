@@ -15,8 +15,6 @@ namespace Infrastructure.DomainBase
         where TDto : class, IDataTransferObject<TDomainEntity>
         where TSpecification : ISpecification<TDto>
     {
-        IQueryable<TDto> Table(bool readOnly = true);
-
         /// <summary>
         /// Получить экземпляр сущности по идентификатору
         /// </summary>
@@ -37,7 +35,7 @@ namespace Infrastructure.DomainBase
         /// Получить все экземпляры сущности
         /// </summary>
         /// <returns>Список экземпляров сущности</returns>
-        IReadOnlyCollection<TDto> GetAll(TSpecification specification = default(TSpecification));
+        IReadOnlyCollection<TDto> Get(TSpecification specification = default(TSpecification));
 
         /// <summary>
         /// Получить сущности по предикату и спецификации
@@ -47,12 +45,6 @@ namespace Infrastructure.DomainBase
         /// <returns></returns>
         IEnumerable<TDto> GetBySpecification(bool readOnly = true,
             TSpecification specification = default(TSpecification));
-
-        /// <summary>
-        /// Добавить сущность
-        /// </summary>
-        /// <param name="entity"></param>
-        void Add(TDto entity);
 
         /// <summary>
         /// Удалить сущность по id
@@ -76,10 +68,10 @@ namespace Infrastructure.DomainBase
         void Remove(int[] ids);
 
         /// <summary>
-        /// Обновить сущность по стратегии
+        /// Сохранить сущность по стратегии
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="updateItemStrategy"></param>
-        void Update(TDto entity, IWorkItemStrategy updateItemStrategy = null);
+        void Save(TDto entity, IWorkItemStrategy updateItemStrategy = null);
     }
 }
